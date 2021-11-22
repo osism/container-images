@@ -1,0 +1,58 @@
+---
+name: Build patchman container image
+
+"on":
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+    paths:
+      - .github/workflows/build-patchman-container-image.yml
+      - patchman/Containerfile
+  pull_request:
+    paths:
+      - .github/workflows/build-patchman-container-image.yml
+      - patchman/Containerfile
+
+jobs:
+
+  build-patchman-container-image:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        if: github.ref == 'refs/heads/main'
+
+      - name: Build container image
+        run: scripts/build.sh
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          IMAGE: patchman
+          REPOSITORY: osism/patchman
+          VERSION: ${{ matrix.version }}
+
+      - name: Push container image
+        run: |
+          scripts/push.sh
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          IMAGE: patchman
+          REPOSITORY: osism/patchman
+          VERSION: ${{ matrix.version }}
+        if: |
+          github.repository == 'osism/container-images' &&
+          github.ref == 'refs/heads/main'

@@ -1,0 +1,1 @@
+[{"model": "sites.site", "pk": 1, "fields": {"domain": "testbed.osism.xyz", "name": "testbed.osism.xyz"}},{"model": "operatingsystems.osgroup", "pk": 1, "fields": {"name": "Ubuntu 20.04", "repos": []}}, {"model": "operatingsystems.os", "pk": 1, "fields": {"name": "Ubuntu 20.04.3 LTS", "osgroup": 1}}]
