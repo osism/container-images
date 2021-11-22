@@ -24,6 +24,6 @@ EXPOSE 9183
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.de" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
-      "org.opencontainers.image.source"="https://github.com/osism/container-image-kosmoo" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
       "org.opencontainers.image.url"="https://www.osism.de" \
       "org.opencontainers.image.vendor"="Betacloud Solutions GmbH"
