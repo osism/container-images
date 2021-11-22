@@ -1,0 +1,14 @@
+ARG VERSION
+FROM bitnami/jenkins:${VERSION}
+
+# Change user to perform privileged actions
+USER 0
+
+# Revert to the original non-root user
+USER 1001
+
+LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-image-jenkins" \
+      "org.opencontainers.image.url"="https://www.osism.tech" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
