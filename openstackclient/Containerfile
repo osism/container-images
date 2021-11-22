@@ -8,6 +8,7 @@ ARG GROUP_ID=45000
 
 COPY files/requirements.txt /requirements.txt
 
+# hadolint ignore=DL3013
 RUN apk add --no-cache \
       dumb-init \
       libstdc++ \
@@ -18,8 +19,8 @@ RUN apk add --no-cache \
       openssl-dev \
       python3-dev \
       rust \
-    && if [ $VERSION = "yoga" ]; then wget -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
-    && if [ $VERSION != "yoga" ]; then wget -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
+    && if [ $VERSION = "yoga" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
+    && if [ $VERSION != "yoga" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
     && mkdir /requirements \
     && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
     && rm -rf /requirements.tar.gz \

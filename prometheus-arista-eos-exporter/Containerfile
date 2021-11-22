@@ -3,9 +3,10 @@ FROM python:${PYTHON_VERSION}-alpine
 
 ARG VERSION=latest
 
-ADD files/config.yml /config.yml
-ADD files/requirements.txt /requirements.txt
+COPY files/config.yml /config.yml
+COPY files/requirements.txt /requirements.txt
 
+# hadolint ignore=DL3013,DL3018
 RUN apk add --no-cache --virtual .build-deps \
       git \
     && apk add --no-cache \

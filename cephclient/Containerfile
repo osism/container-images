@@ -14,6 +14,7 @@ COPY files/run.sh /run.sh
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# hadolint ignore=DL3046
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         apt-transport-https \

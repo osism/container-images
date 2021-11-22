@@ -9,8 +9,8 @@ RUN tar xvzf v${VERSION}.tar.gz
 
 WORKDIR /app/homer-${VERSION}
 
-RUN yarn install --frozen-lockfile
-RUN yarn build
+RUN yarn install --frozen-lockfile \
+    && yarn build
 
 # production stage
 FROM alpine:3.11
