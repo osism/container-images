@@ -8,11 +8,11 @@ name: Build virtualbmc container image
   push:
     paths:
       - .github/workflows/build-virtualbmc-container-image.yml
-      - virtualbmc/Containerfile
+      - virtualbmc/**
   pull_request:
     paths:
       - .github/workflows/build-virtualbmc-container-image.yml
-      - virtualbmc/Containerfile
+      - virtualbmc/**
 
 jobs:
 

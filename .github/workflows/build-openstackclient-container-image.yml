@@ -8,11 +8,11 @@ name: Build openstackclient container image
   push:
     paths:
       - .github/workflows/build-openstackclient-container-image.yml
-      - openstackclient/Containerfile
+      - openstackclient/**
   pull_request:
     paths:
       - .github/workflows/build-openstackclient-container-image.yml
-      - openstackclient/Containerfile
+      - openstackclient/**
 
 jobs:
 

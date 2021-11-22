@@ -8,11 +8,11 @@ name: Build ceph-daemon container image
   push:
     paths:
       - .github/workflows/build-ceph-daemon-container-image.yml
-      - ceph-daemon/Containerfile
+      - ceph-daemon/**
   pull_request:
     paths:
       - .github/workflows/build-ceph-daemon-container-image.yml
-      - ceph-daemon/Containerfile
+      - ceph-daemon/**
 
 jobs:
 

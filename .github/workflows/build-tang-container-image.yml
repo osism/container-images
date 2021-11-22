@@ -8,11 +8,11 @@ name: Build tang container image
   push:
     paths:
       - .github/workflows/build-tang-container-image.yml
-      - tang/Containerfile
+      - tang/**
   pull_request:
     paths:
       - .github/workflows/build-tang-container-image.yml
-      - tang/Containerfile
+      - tang/**
 
 jobs:
 

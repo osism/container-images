@@ -8,11 +8,11 @@ name: Build prometheus-arista-eos-exporter container image
   push:
     paths:
       - .github/workflows/build-prometheus-arista-eos-exporter-container-image.yml
-      - prometheus-arista-eos-exporter/Containerfile
+      - prometheus-arista-eos-exporter/**
   pull_request:
     paths:
       - .github/workflows/build-prometheus-arista-eos-exporter-container-image.yml
-      - prometheus-arista-eos-exporter/Containerfile
+      - prometheus-arista-eos-exporter/**
 
 jobs:
 

@@ -8,11 +8,11 @@ name: Build awxclient container image
   push:
     paths:
       - .github/workflows/build-awxclient-container-image.yml
-      - awxclient/Containerfile
+      - awxclient/**
   pull_request:
     paths:
       - .github/workflows/build-awxclient-container-image.yml
-      - awxclient/Containerfile
+      - awxclient/**
 
 jobs:
 

@@ -8,11 +8,11 @@ name: Build kosmoo container image
   push:
     paths:
       - .github/workflows/build-kosmoo-container-image.yml
-      - kosmoo/Containerfile
+      - kosmoo/**
   pull_request:
     paths:
       - .github/workflows/build-kosmoo-container-image.yml
-      - kosmoo/Containerfile
+      - kosmoo/**
 
 jobs:
 

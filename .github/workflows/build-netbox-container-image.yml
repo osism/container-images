@@ -8,11 +8,11 @@ name: Build netbox container image
   push:
     paths:
       - .github/workflows/build-netbox-container-image.yml
-      - netbox/Containerfile
+      - netbox/**
   pull_request:
     paths:
       - .github/workflows/build-netbox-container-image.yml
-      - netbox/Containerfile
+      - netbox/**
 
 jobs:
 

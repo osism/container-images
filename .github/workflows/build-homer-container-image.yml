@@ -8,11 +8,11 @@ name: Build homer container image
   push:
     paths:
       - .github/workflows/build-homer-container-image.yml
-      - homer/Containerfile
+      - homer/**
   pull_request:
     paths:
       - .github/workflows/build-homer-container-image.yml
-      - homer/Containerfile
+      - homer/**
 
 jobs:
 

@@ -8,11 +8,11 @@ name: Build cephclient container image
   push:
     paths:
       - .github/workflows/build-cephclient-container-image.yml
-      - cephclient/Containerfile
+      - cephclient/**
   pull_request:
     paths:
       - .github/workflows/build-cephclient-container-image.yml
-      - cephclient/Containerfile
+      - cephclient/**
 
 jobs:
 

@@ -8,11 +8,11 @@ name: Build jenkins container image
   push:
     paths:
       - .github/workflows/build-jenkins-container-image.yml
-      - jenkins/Containerfile
+      - jenkins/**
   pull_request:
     paths:
       - .github/workflows/build-jenkins-container-image.yml
-      - jenkins/Containerfile
+      - jenkins/**
 
 jobs:
 

@@ -8,11 +8,11 @@ name: Build ara-server container image
   push:
     paths:
       - .github/workflows/build-ara-server-container-image.yml
-      - ara-server/Containerfile
+      - ara-server/**
   pull_request:
     paths:
       - .github/workflows/build-ara-server-container-image.yml
-      - ara-server/Containerfile
+      - ara-server/**
 
 jobs:
 

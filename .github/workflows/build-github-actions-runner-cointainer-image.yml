@@ -8,11 +8,11 @@ name: Build github-actions-runner container image
   push:
     paths:
       - .github/workflows/build-github-actions-runner-container-image.yml
-      - github-actions-runner/Containerfile
+      - github-actions-runner/**
   pull_request:
     paths:
       - .github/workflows/build-github-actions-runner-container-image.yml
-      - github-actions-runner/Containerfile
+      - github-actions-runner/**
 
 jobs:
 
