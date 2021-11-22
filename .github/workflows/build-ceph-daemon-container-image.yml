@@ -1,0 +1,59 @@
+---
+name: Build ceph-daemon container image
+
+"on":
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+    paths:
+      - .github/workflows/build-ceph-daemon-container-image.yml
+      - ceph-daemon/Containerfile
+  pull_request:
+    paths:
+      - .github/workflows/build-ceph-daemon-container-image.yml
+      - ceph-daemon/Containerfile
+
+jobs:
+
+  build-ceph-daemon-container-image:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - v5.0.13-stable-5.0-octopus
+          - v6.0.5-stable-6.0-pacific
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        if: github.ref == 'refs/heads/main'
+
+      - name: Build container image
+        run: scripts/build.sh
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          IMAGE: ceph-daemon
+          REPOSITORY: osism/ceph-daemon
+          VERSION: ${{ matrix.version }}
+
+      - name: Push container image
+        run: |
+          scripts/push.sh
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          IMAGE: ceph-daemon
+          REPOSITORY: osism/ceph-daemon
+          VERSION: ${{ matrix.version }}
+        if: |
+          github.repository == 'osism/container-images' &&
+          github.ref == 'refs/heads/main'
