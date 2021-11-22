@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - v5.0.13-stable-5.0-octopus
+          - v5.0.14-stable-5.0-octopus
           - v6.0.5-stable-6.0-pacific
     steps:
       - name: Checkout code
