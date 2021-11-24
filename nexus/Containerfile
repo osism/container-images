@@ -1,0 +1,10 @@
+ARG VERSION=3.36.0
+FROM sonatype/nexus3:${VERSION}
+
+COPY files/scripts /scripts
+
+LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://www.osism.tech" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
