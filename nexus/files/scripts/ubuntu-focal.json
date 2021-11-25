@@ -1,0 +1,5 @@
+{
+  "name": "ubuntu-focal",
+  "type": "groovy",
+  "content": "import org.sonatype.nexus.blobstore.api.BlobStoreManager; repository.createAptProxy('ubuntu','http://archive.ubuntu.com/ubuntu/', BlobStoreManager.DEFAULT_BLOBSTORE_NAME, 'focal', false);"
+}

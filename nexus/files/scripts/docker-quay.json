@@ -1,0 +1,5 @@
+{
+  "name": "docker-quay",
+  "type": "groovy",
+  "content": "import org.sonatype.nexus.blobstore.api.BlobStoreManager; repository.createDockerProxy('docker-quay','https://quay.io', 'HUB', 8192, null, null, BlobStoreManager.DEFAULT_BLOBSTORE_NAME, false, false);"
+}

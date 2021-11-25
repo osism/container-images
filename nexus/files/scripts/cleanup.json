@@ -1,0 +1,5 @@
+{
+  "name": "cleanup",
+  "type": "groovy",
+  "content": "r = repository.getRepositoryManager(); r.delete('maven-central'); r.delete('maven-public'); r.delete('maven-releases'); r.delete('maven-snapshots'); r.delete('nuget-group'); r.delete('nuget-hosted'); r.delete('nuget.org-proxy');"
+}
