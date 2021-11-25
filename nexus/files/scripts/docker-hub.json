@@ -1,5 +1,5 @@
 {
   "name": "docker-hub",
   "type": "groovy",
-  "content": "import org.sonatype.nexus.blobstore.api.BlobStoreManager; repository.createDockerProxy('docker-hub','https://registry-1.docker.io', 'HUB', 8191, null, null, BlobStoreManager.DEFAULT_BLOBSTORE_NAME, false, false);"
+  "content": "import org.sonatype.nexus.blobstore.api.BlobStoreManager; repository.createDockerProxy('docker-hub','https://registry-1.docker.io', 'HUB', null, 8191, null, BlobStoreManager.DEFAULT_BLOBSTORE_NAME, false, false);"
 }
