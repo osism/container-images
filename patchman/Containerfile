@@ -13,6 +13,7 @@ COPY files/local_settings.py /etc/patchman/local_settings.py
 COPY files/requirements.txt /requirements.txt
 COPY files/run.sh /run.sh
 COPY files/fixtures.json /fixtures.json
+COPY files/pman-upd.patch /pman-upd.patch
 
 # hadolint ignore=DL3018
 RUN apt-get update \
@@ -31,6 +32,9 @@ RUN apt-get update \
 
 RUN if [ $VERSION = "latest" ]; then git clone https://github.com/furlongm/patchman.git /repository; fi \
     && if [ $VERSION != "latest" ]; then git clone -b v$VERSION https://github.com/furlongm/patchman.git /repository; fi
+
+# TODO(osfrickler): Drop patch once it has been merged upstream
+RUN patch -d /repository -p1 -i /pman-upd.patch
 
 # hadolint ignore=DL3013
 RUN pip3 install --no-cache-dir --upgrade pip \
