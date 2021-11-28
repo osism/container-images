@@ -1,6 +1,10 @@
 ARG VERSION=v3.0.10-ldap
 FROM netboxcommunity/netbox:${VERSION}
 
+COPY requirements.txt /requirements.txt
+
+RUN /opt/netbox/venv/bin/pip3 install --no-cache-dir -r /requirements.txt
+
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \
