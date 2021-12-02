@@ -1,0 +1,8 @@
+ARG VERSION=wallaby
+FROM osism/nova-libvirt:${VERSION}
+
+LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://www.osism.tech" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
