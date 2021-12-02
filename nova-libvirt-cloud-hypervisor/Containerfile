@@ -1,5 +1,40 @@
 ARG VERSION=wallaby
-FROM osism/nova-libvirt:${VERSION}
+
+FROM ubuntu:20.04 as builder
+
+ENV FRONTEND=noninteractive
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y git build-essential curl ca-certificates \
+    && git clone https://github.com/cloud-hypervisor/cloud-hypervisor.git /cloud-hypervisor \
+    && git clone https://github.com/cloud-hypervisor/rust-hypervisor-firmware /rust-hypervisor-firmware \
+    && curl https://sh.rustup.rs -sSf | sh -s -- -y \
+    && /root/.cargo/bin/rustup target add x86_64-unknown-linux-musl \
+    && mkdir /target
+
+WORKDIR /cloud-hypervisor
+
+RUN /root/.cargo/bin/cargo build \
+      --release \
+      --target=x86_64-unknown-linux-musl \
+      --all \
+      --target-dir /target
+
+WORKDIR /rust-hypervisor-firmware
+
+RUN /root/.cargo/bin/cargo build \
+      --release \
+      --target target.json \
+      -Zbuild-std=core,alloc \
+      -Zbuild-std-features=compiler-builtins-mem \
+      --target-dir /target
+
+FROM quay.io/osism/nova-libvirt:${VERSION}
+
+COPY --from=builder /target/x86_64-unknown-linux-musl/release/cloud-hypervisor /usr/bin/cloud-hypervisor
+
+RUN setcap cap_net_admin+ep /usr/bin/cloud-hypervisor
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
