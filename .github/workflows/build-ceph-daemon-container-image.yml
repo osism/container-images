@@ -22,7 +22,7 @@ jobs:
       matrix:
         version:
           - v5.0.14-stable-5.0-octopus
-          - v6.0.5-stable-6.0-pacific
+          - v6.0.6-stable-6.0-pacific
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
