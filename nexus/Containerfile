@@ -1,4 +1,4 @@
-ARG VERSION=3.36.0
+ARG VERSION=3.37.0
 FROM sonatype/nexus3:${VERSION}
 
 COPY files/scripts /scripts
