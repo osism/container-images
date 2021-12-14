@@ -11,30 +11,32 @@ COPY files/requirements.txt /requirements.txt
 # hadolint ignore=DL3013
 RUN apk add --no-cache \
       dumb-init \
-      libstdc++ \
-    && apk add --no-cache --virtual .build-deps \
       build-base \
-      cargo \
+      linux-headers \
       libffi-dev \
-      openssl-dev \
-      python3-dev \
-      rust \
-    && if [ $VERSION = "yoga" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
-    && if [ $VERSION != "yoga" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
-    && mkdir /requirements \
-    && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
-    && rm -rf /requirements.tar.gz \
-    && while read -r package; do \
-         grep -q "$package" /requirements/upper-constraints.txt && \
-         echo "$package" >> /packages.txt || true; \
-       done < /requirements.txt \
     && pip3 --no-cache-dir install --upgrade pip \
-    && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
-    && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt ospurge \
-    && rm -rf /requirements \
-      /requirements.txt \
-      /packages.txt \
-    && apk del .build-deps \
+    && pip3 --no-cache-dir install python-openstackclient \
+    && pip3 --no-cache-dir install python-barbicanclient \
+    && pip3 --no-cache-dir install python-ceilometerclient \
+    && pip3 --no-cache-dir install python-cinderclient \
+    && pip3 --no-cache-dir install python-cloudkittyclient \
+    && pip3 --no-cache-dir install python-designateclient \
+    && pip3 --no-cache-dir install python-fuelclient \
+    && pip3 --no-cache-dir install python-glanceclient \
+    #&& pip3 --no-cache-dir install python-gnocchiclient \
+    && pip3 --no-cache-dir install python-heatclient \
+    && pip3 --no-cache-dir install python-magnumclient \
+    && pip3 --no-cache-dir install python-manilaclient \
+    && pip3 --no-cache-dir install python-mistralclient \
+    && pip3 --no-cache-dir install python-monascaclient \
+    && pip3 --no-cache-dir install python-muranoclient \
+    && pip3 --no-cache-dir install python-neutronclient \
+    && pip3 --no-cache-dir install python-novaclient \
+    && pip3 --no-cache-dir install python-saharaclient \
+    && pip3 --no-cache-dir install python-senlinclient \
+    && pip3 --no-cache-dir install python-swiftclient \
+    && pip3 --no-cache-dir install python-troveclient \
+    && apk del build-base linux-headers libffi-dev \
     && openstack complete > /osc.bash_completion \
     && addgroup -g $GROUP_ID dragon \
     && adduser -D -u $USER_ID -G dragon dragon \
