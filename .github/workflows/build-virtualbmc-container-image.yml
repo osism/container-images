@@ -9,6 +9,8 @@ name: Build virtualbmc container image
     paths:
       - .github/workflows/build-virtualbmc-container-image.yml
       - virtualbmc/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-virtualbmc-container-image.yml

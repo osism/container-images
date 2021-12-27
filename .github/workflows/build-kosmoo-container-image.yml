@@ -9,6 +9,8 @@ name: Build kosmoo container image
     paths:
       - .github/workflows/build-kosmoo-container-image.yml
       - kosmoo/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-kosmoo-container-image.yml

@@ -9,6 +9,8 @@ name: Build nexus container image
     paths:
       - .github/workflows/build-nexus-container-image.yml
       - nexus/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-nexus-container-image.yml

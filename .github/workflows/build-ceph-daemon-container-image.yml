@@ -9,6 +9,8 @@ name: Build ceph-daemon container image
     paths:
       - .github/workflows/build-ceph-daemon-container-image.yml
       - ceph-daemon/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-ceph-daemon-container-image.yml

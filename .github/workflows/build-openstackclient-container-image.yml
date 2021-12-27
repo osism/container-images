@@ -9,6 +9,8 @@ name: Build openstackclient container image
     paths:
       - .github/workflows/build-openstackclient-container-image.yml
       - openstackclient/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-openstackclient-container-image.yml

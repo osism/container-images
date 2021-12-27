@@ -9,6 +9,8 @@ name: Build nova-libvirt-cloud-hypervisor container image
     paths:
       - .github/workflows/build-nova-libvirt-cloud-hypervisor-container-image.yml
       - nova-libvirt-cloud-hypervisor/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-nova-libvirt-cloud-hypervisor-container-image.yml

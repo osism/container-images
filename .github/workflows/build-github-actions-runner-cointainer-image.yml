@@ -9,6 +9,8 @@ name: Build github-actions-runner container image
     paths:
       - .github/workflows/build-github-actions-runner-container-image.yml
       - github-actions-runner/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-github-actions-runner-container-image.yml

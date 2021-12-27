@@ -9,6 +9,8 @@ name: Build tang container image
     paths:
       - .github/workflows/build-tang-container-image.yml
       - tang/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-tang-container-image.yml

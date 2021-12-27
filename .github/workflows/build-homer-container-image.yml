@@ -9,6 +9,8 @@ name: Build homer container image
     paths:
       - .github/workflows/build-homer-container-image.yml
       - homer/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-homer-container-image.yml

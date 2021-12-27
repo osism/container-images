@@ -9,6 +9,8 @@ name: Build prometheus-arista-eos-exporter container image
     paths:
       - .github/workflows/build-prometheus-arista-eos-exporter-container-image.yml
       - prometheus-arista-eos-exporter/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-prometheus-arista-eos-exporter-container-image.yml

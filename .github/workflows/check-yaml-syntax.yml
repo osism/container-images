@@ -6,6 +6,8 @@ name: Check yaml syntax
     paths:
       - '**.yaml'
       - '**.yml'
+    branches:
+      - main
   pull_request:
     paths:
       - '**.yaml'
