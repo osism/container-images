@@ -21,6 +21,7 @@ jobs:
     strategy:
       matrix:
         version:
+          - v4.0.22-stable-4.0-nautilus
           - v5.0.14-stable-5.0-octopus
           - v6.0.6-stable-6.0-pacific
     steps:
