@@ -9,6 +9,8 @@ name: Build ara-server container image
     paths:
       - .github/workflows/build-ara-server-container-image.yml
       - ara-server/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-ara-server-container-image.yml

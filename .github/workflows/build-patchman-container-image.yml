@@ -9,6 +9,8 @@ name: Build patchman container image
     paths:
       - .github/workflows/build-patchman-container-image.yml
       - patchman/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-patchman-container-image.yml

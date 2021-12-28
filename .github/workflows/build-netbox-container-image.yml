@@ -9,6 +9,8 @@ name: Build netbox container image
     paths:
       - .github/workflows/build-netbox-container-image.yml
       - netbox/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-netbox-container-image.yml

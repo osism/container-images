@@ -9,6 +9,8 @@ name: Build jenkins container image
     paths:
       - .github/workflows/build-jenkins-container-image.yml
       - jenkins/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-jenkins-container-image.yml

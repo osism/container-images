@@ -9,6 +9,8 @@ name: Build cephclient container image
     paths:
       - .github/workflows/build-cephclient-container-image.yml
       - cephclient/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-cephclient-container-image.yml

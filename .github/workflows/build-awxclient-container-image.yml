@@ -9,6 +9,8 @@ name: Build awxclient container image
     paths:
       - .github/workflows/build-awxclient-container-image.yml
       - awxclient/**
+    branches:
+      - main
   pull_request:
     paths:
       - .github/workflows/build-awxclient-container-image.yml
