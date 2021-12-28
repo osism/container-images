@@ -2,11 +2,6 @@ ARG VERSION=3.37.0
 FROM sonatype/nexus3:${VERSION}
 
 COPY files/scripts /scripts
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /usr/local/bin/wait
-
-USER root
-RUN chmod 0755 /usr/local/bin/wait
-USER nexus
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
