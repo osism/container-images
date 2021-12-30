@@ -1,5 +1,0 @@
-{
-  "name": "ubuntu-docker",
-  "type": "groovy",
-  "content": "import org.sonatype.nexus.blobstore.api.BlobStoreManager; repository.createAptProxy('ubuntu-docker','https://download.docker.com/linux/ubuntu/', BlobStoreManager.DEFAULT_BLOBSTORE_NAME, 'focal', false);"
-}
