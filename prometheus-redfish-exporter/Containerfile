@@ -1,0 +1,27 @@
+FROM golang:bullseye as builder
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      git \
+      make \
+    && git clone https://github.com/jenningsloy318/redfish_exporter /build
+
+WORKDIR /build
+
+RUN make build
+
+FROM golang:alpine
+
+COPY --from=builder /build/build/redfish_exporter /
+COPY files/config.yaml /config.yaml
+
+RUN apk add --no-cache \
+      dumb-init
+
+ENTRYPOINT ["usr/bin/dumb-init", "--", "/redfish_exporter", "--config.file=/config.yaml"]
+
+LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://www.osism.tech" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
