@@ -58,3 +58,15 @@ jobs:
         if: |
           github.repository == 'osism/container-images' &&
           github.ref == 'refs/heads/main'
+
+      - name: Push container image with latest tag
+        run: |
+          scripts/push.sh
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          IMAGE: github-actions-runner
+          REPOSITORY: osism/github-actions-runner
+          VERSION: latest
+        if: |
+          github.repository == 'osism/container-images' &&
+          github.ref == 'refs/heads/main'
