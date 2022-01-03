@@ -3,7 +3,9 @@ FROM quay.io/netboxcommunity/netbox:${VERSION}
 
 COPY requirements.txt /requirements.txt
 
-RUN /opt/netbox/venv/bin/pip3 install --no-cache-dir -r /requirements.txt
+RUN apk add --update --no-cache git \
+    && /opt/netbox/venv/bin/pip3 install --no-cache-dir -r /requirements.txt \
+    && apk del git
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
