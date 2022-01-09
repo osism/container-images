@@ -24,7 +24,7 @@ jobs:
       matrix:
         version:
           - v3.0.11-ldap
-          - v3.1.3-ldap
+          - v3.1.5-ldap
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
