@@ -1,3 +1,4 @@
+django-health-check==3.16.5
 gunicorn
 psycopg2-binary
 whitenoise<4.0
