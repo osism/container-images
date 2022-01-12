@@ -1,4 +1,5 @@
 ---
+
 name: Build ara-server container image
 
 "on":
@@ -43,6 +44,7 @@ jobs:
         run: scripts/build.sh
         env:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          DOCKER_SLIM: true
           IMAGE: ara-server
           REPOSITORY: osism/ara-server
           VERSION: ${{ matrix.version }}

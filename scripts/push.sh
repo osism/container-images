@@ -15,6 +15,11 @@ if [[ -n $DOCKER_REGISTRY ]]; then
     REPOSITORY="$DOCKER_REGISTRY/$REPOSITORY"
 fi
 
-docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
+if [[ $DOCKER_SLIM == "true" ]]; then
+    docker tag "$REPOSITORY.slim" "$REPOSITORY:$VERSION"
+else
+    docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
+fi
+
 docker push "$REPOSITORY:$VERSION"
 docker rmi "$REPOSITORY:$VERSION"
