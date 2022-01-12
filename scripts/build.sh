@@ -31,3 +31,10 @@ docker buildx build \
     --label "org.opencontainers.image.version=$VERSION" \
     $BUILD_OPTS .
 popd
+
+
+if [[ $DOCKER_SLIM == "true" ]]; then
+    curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/1.37.3/dist_linux.tar.gz
+    tar -xvf ds.tar.gz
+    ./dist_linux/docker-slim build --http-probe=false "$REPOSITORY:$REVISION"
+fi
