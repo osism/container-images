@@ -54,6 +54,7 @@ jobs:
           scripts/push.sh
         env:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          DOCKER_SLIM: true
           IMAGE: ara-server
           REPOSITORY: osism/ara-server
           VERSION: ${{ matrix.version }}
