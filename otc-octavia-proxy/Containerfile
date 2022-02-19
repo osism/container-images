@@ -1,0 +1,31 @@
+FROM docker.io/opendevorg/python-builder:3.9 as builder
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get -y update \
+    && apt-get -y --no-install-recommends install git \
+    && apt-get clean all \
+    && rm -rf \
+      /var/lib/apt/lists/* \
+      /var/tmp/*
+RUN git clone https://github.com/opentelekomcloud-infra/octavia-proxy/ /tmp/src
+RUN echo "gunicorn" >> /tmp/src/requirements.txt
+RUN assemble
+
+FROM docker.io/opendevorg/python-base:3.9 as octavia-proxy
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY --from=builder /output/ /output
+RUN mkdir /etc/octavia_proxy
+COPY files/octavia_proxy.conf files/config.py /etc/octavia_proxy/
+
+RUN /output/install-from-bindep \
+  && rm -rf /output \
+  && useradd -u 10001 -m -d /var/lib/octavia_proxy -c "Octavia Proxy" octavia_proxy \
+  && chown -R 10001 /etc/octavia_proxy
+
+VOLUME /var/lib/octavia_proxy
+
+USER 10001
+CMD ["gunicorn", "-b 0.0.0.0:9876", \
+     "--access-logfile", "-", \
+     "octavia_proxy.api.app:setup_app(argv=[])"]
