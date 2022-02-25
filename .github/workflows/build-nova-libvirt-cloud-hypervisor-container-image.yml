@@ -3,8 +3,6 @@ name: Build nova-libvirt-cloud-hypervisor container image
 
 "on":
   workflow_dispatch:
-  schedule:
-    - cron: "0 3 * * *"
   push:
     paths:
       - .github/workflows/build-nova-libvirt-cloud-hypervisor-container-image.yml
