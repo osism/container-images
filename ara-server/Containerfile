@@ -18,15 +18,16 @@ RUN echo $VERSION && apt-get update \
     && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels -r /requirements.txt \
     && if [ $VERSION != "latest" ]; then python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels "ara[server]==$VERSION"; else python3 -m pip wheel --wheel-dir=/wheels --no-cache-dir "ara[server]"; fi
 
-FROM python:3.9
+FROM nginx/unit:1.26.1-python3.9
 
 ENV TZ=UTC
 
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /docker-compose-wait
 
 COPY --from=builder /wheels /wheels
 COPY files/requirements.txt /requirements.txt
-COPY files/run.sh /run.sh
+COPY files/run.sh /docker-entrypoint.d/run.sh
+COPY files/ara-server.json /docker-entrypoint.d/ara-server.json
 
 # hadolint ignore=DL3008,DL3013,SC2102
 RUN apt-get update \
@@ -36,16 +37,13 @@ RUN apt-get update \
     && python3 -m pip install --no-cache-dir -U pip \
     && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels -r /requirements.txt \
     && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels ara[server] \
-    && useradd ara-server \
-    && chmod +x /wait \
+    && chmod +x /docker-compose-wait \
+    && mkdir -p /var/lib/ara-server \
+    && chown -R unit: /var/lib/ara-server \
     && rm -rf /var/lib/apt/lists/* /wheels /requirements.txt
-
-USER ara-server
-WORKDIR /home/ara-server
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "/wait && /run.sh"]
 HEALTHCHECK CMD curl --fail http://localhost:8000 || exit 1
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \

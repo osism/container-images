@@ -1,0 +1,37 @@
+{
+  "listeners": {
+    "*:8000": {
+      "pass": "routes"
+    }
+  },
+
+  "routes": [
+    {
+      "action": {
+        "share": "/var/lib/ara-server/www/$uri",
+        "fallback": {
+          "pass": "applications/ara-server"
+        }
+      }
+    }
+
+  ],
+
+  "applications": {
+    "ara-server": {
+      "type": "python 3",
+      "module": "ara.server.wsgi",
+      "working_directory": "/var/lib/ara-server",
+      "environment": {
+        "ARA_BASE_DIR": "/var/lib/ara-server"
+      },
+      "processes": {
+        "max": 10,
+        "spare": 1,
+        "idle_timeout": 120
+      }
+    }
+  },
+
+  "access_log": "/dev/stdout"
+}
