@@ -1,5 +1,5 @@
 ARG VERSION=17.0.0
-FROM jboss/keycloak:${VERSION}
+FROM quay.io/keycloak/keycloak:${VERSION}
 
 USER jboss
 
