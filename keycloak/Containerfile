@@ -1,4 +1,4 @@
-ARG VERSION=16.1.1
+ARG VERSION=17.0.0
 FROM jboss/keycloak:${VERSION}
 
 USER jboss
