@@ -31,8 +31,10 @@ if [[ $IMAGE == "openstackclient" ]]; then
     fi
 fi
 
-# push e.g. osism/ceph-daemon:12.2.13
+# push e.g. osism/ceph-daemon:12.2.13 + osism/ceph-daemon:pacific
 if [[ $IMAGE == "ceph-daemon" ]]; then
+
+    # push e.g. osism/ceph-daemon:12.2.13
     version=$(docker run --rm --entrypoint=/usr/bin/ceph "$REPOSITORY:$VERSION" --version | awk '{ print $3 }')
     if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
         echo "The image ${REPOSITORY}:${version} already exists."
@@ -40,6 +42,11 @@ if [[ $IMAGE == "ceph-daemon" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
     fi
+
+    # push e.g. osism/ceph-daemon:pacific
+    version=$(docker inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "$REPOSITORY:$REVISION" | grep -P "^CEPH_VERSION=" | sed 's/[^=]*=//')
+    docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
+    docker push "$REPOSITORY:$version"
 fi
 
 # push e.g. osism/cephclient:16.2.5
