@@ -2,6 +2,7 @@ aodhclient
 gnocchiclient
 keystoneauth-oidc
 osc-placement
+osprofiler
 prometheus-client
 python-barbicanclient
 python-blazarclient
