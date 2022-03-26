@@ -27,7 +27,7 @@ jobs:
           - v6.0.6-stable-6.0-pacific
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup docker
         uses: docker/setup-buildx-action@v1
