@@ -26,6 +26,7 @@ jobs:
           - wallaby
           - xena
           - yoga
+          - zed
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
