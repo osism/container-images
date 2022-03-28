@@ -1,4 +1,4 @@
 netbox-bgp==0.5.1
 nextbox-ui-plugin==0.9.2
-netbox-dns==0.8.0
+netbox-dns==0.9.0
 git+https://github.com/osism/netbox-plugin-osism.git@main
