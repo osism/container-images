@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - latest
+          - 2.0.3  # renovate: datasource=pypi depName=patchman
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
