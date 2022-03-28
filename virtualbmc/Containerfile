@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION=3.9
-FROM python:${PYTHON_VERSION}
+FROM python:${PYTHON_VERSION}-slim
 
 ARG VERSION=2.2.0
 
@@ -8,10 +8,10 @@ ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 COPY files/run.sh /run.sh
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3-dev libvirt-dev \
+    && apt-get install -y --no-install-recommends python3-dev libvirt-dev pkg-config gcc \
     && python3 -m pip --no-cache-dir install -U 'pip==22.0.4' \
     && python3 -m pip install --no-cache-dir virtualbmc==${VERSION} \
-    && apt-get remove -y python3-dev libvirt-dev \
+    && apt-get remove -y python3-dev libvirt-dev pkg-config gcc \
     && rm -rf /var/lib/apt/lists
 
 CMD ["/run.sh"]
