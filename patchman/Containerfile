@@ -21,6 +21,7 @@ RUN apt-get update \
       git \
       python3-apt \
       python3-dev \
+      libmagic1 \
     && apt-get clean \
     && apt-get autoremove -y \
     && mkdir /configuration \
