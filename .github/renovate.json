@@ -2,5 +2,15 @@
   "extends": [
     "github>osism/renovate-config",
     "github>osism/renovate-config:docker"
+  ],
+  "regexManagers":[
+    {
+      "fileMatch":[
+        "^\\.github\\/workflows\\/build-.*\\.yml"
+      ],
+      "matchStrings":[
+        "- (?<currentValue>.*?)  # renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)"
+     ]
+    }
   ]
 }
