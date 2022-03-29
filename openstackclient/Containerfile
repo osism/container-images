@@ -1,10 +1,7 @@
 ARG PYTHON_VERSION=3.7
-FROM python:${PYTHON_VERSION}-alpine
+FROM python:${PYTHON_VERSION}-alpine as build
 
 ARG VERSION=zed
-
-ARG USER_ID=45000
-ARG GROUP_ID=45000
 
 COPY files/requirements.txt /requirements.txt
 
@@ -28,14 +25,26 @@ RUN apk add --no-cache \
          grep -q "$package" /requirements/upper-constraints.txt && \
          echo "$package" >> /packages.txt || true; \
        done < /requirements.txt \
-    && pip3 --no-cache-dir install --upgrade pip \
-    && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
-    && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt ospurge \
+    && python3 -m venv /venv \
+    && /venv/bin/pip3 --no-cache-dir install --upgrade pip \
+    && /venv/bin/pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
+    && /venv/bin/pip3 --no-cache-dir install -c /requirements/upper-constraints.txt ospurge \
     && rm -rf /requirements \
       /requirements.txt \
       /packages.txt \
-    && apk del .build-deps \
-    && openstack complete > /osc.bash_completion \
+    && apk del .build-deps
+
+FROM python:${PYTHON_VERSION}-alpine
+
+ARG USER_ID=45000
+ARG GROUP_ID=45000
+
+COPY --from=build /venv /venv
+
+ENV PATH="/venv/bin:$PATH"
+RUN apk add --no-cache \
+      dumb-init \
+    && /venv/bin/openstack complete > /osc.bash_completion \
     && addgroup -g $GROUP_ID dragon \
     && adduser -D -u $USER_ID -G dragon dragon \
     && mkdir /configuration \
