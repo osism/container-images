@@ -20,6 +20,16 @@ docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 # push e.g. osism/cephclient:pacific
 docker push "$REPOSITORY:$VERSION"
 
+if [[ $IMAGE == "cgit" ]]; then
+    version=$(docker run --rm "$REPOSITORY:$VERSION" /usr/libexec/cgit/cgi-bin/cgit --version | head -n1 | awk '{ print $2 }' | sed 's/v*//')
+    if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
+        echo "The image ${REPOSITORY}:${version} already exists."
+    else
+        docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
+        docker push "$REPOSITORY:$version"
+    fi
+fi
+
 # push e.g. osism/openstackclient:5.5.0
 if [[ $IMAGE == "openstackclient" ]]; then
     version=$(docker run --rm "$REPOSITORY:$VERSION" openstack --version | awk '{ print $2 }')
