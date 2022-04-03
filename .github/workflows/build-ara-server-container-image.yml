@@ -23,6 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
+          - latest
           - 1.5.8
     steps:
       - name: Checkout code
