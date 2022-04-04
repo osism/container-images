@@ -5,7 +5,7 @@ COPY files/requirements.txt /requirements.txt
 COPY files/requirements.yml /requirements.yml
 COPY files/run.sh /run.sh
 
-RUN apk add --no-cache bash \
+RUN apk add --no-cache bash openssh-client \
     && apk add --no-cache --virtual .build-deps \
       build-base \
       cargo \
