@@ -17,6 +17,7 @@ if [[ ! -e id_rsa.operator ]]; then
     ansible-playbook \
         -i localhost, \
         -e @../secrets.yml \
+        -e keypair_dest=//opt/configuration/environments/manager/id_rsa.operator \
         osism.manager.keypair "$@"
 fi
 
