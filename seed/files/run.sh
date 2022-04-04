@@ -5,6 +5,8 @@ if [[ $# -lt 1 ]]; then
     exit 1
 fi
 
+cd /opt/configuration/environments/manager
+
 playbook=$1
 shift
 
