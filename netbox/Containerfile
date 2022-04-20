@@ -1,4 +1,4 @@
-ARG VERSION=v3.1.9-ldap
+ARG VERSION=v3.2.1-ldap
 FROM quay.io/netboxcommunity/netbox:${VERSION}
 
 COPY requirements.txt /requirements.txt
