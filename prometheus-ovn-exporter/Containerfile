@@ -1,0 +1,22 @@
+ARG ALPINE_VERSION=3.15.4
+FROM alpine:${ALPINE_VERSION}
+ENV arch=x86_64
+ENV prometheus_ovn_exporter_version=1.0.4
+ENV prometheus_ovn_exporter_url=https://github.com/greenpau/ovn_exporter/releases/download/v${prometheus_ovn_exporter_version}/ovn_exporter_${prometheus_ovn_exporter_version}_Linux_${arch}.tar.gz
+ENV prometheus_ovn_exporter_sha512sum=78cc0280d1b8e1d5e3e90b5417e4370c6a8cbd08bbeda6cdb26d99f1fa0b897d713d8b0a5068a1bfb68847b910099a44f42d4a07ee6f1576b869201820f86bd4
+RUN apk update && apk add curl
+
+RUN curl -sSLf -o /tmp/prometheus_ovn_exporter.tar.gz ${prometheus_ovn_exporter_url} \
+    && echo "${prometheus_ovn_exporter_sha512sum}  /tmp/prometheus_ovn_exporter.tar.gz" | sha512sum -c \
+    && tar xvf /tmp/prometheus_ovn_exporter.tar.gz -C /opt/ \
+    && rm -f /tmp/prometheus_ovn_exporter.tar.gz
+
+RUN apk del curl
+
+USER prometheus
+
+LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://www.osism.tech" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
