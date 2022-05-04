@@ -1,6 +1,7 @@
 aodhclient
 gnocchiclient
 keystoneauth-oidc
+neutron-dynamic-routing
 osc-placement
 osprofiler
 prometheus-client
