@@ -9,7 +9,7 @@ COPY files/run.sh /run.sh
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3-dev libvirt-dev pkg-config gcc \
-    && python3 -m pip --no-cache-dir install -U 'pip==22.0.4' \
+    && python3 -m pip --no-cache-dir install -U 'pip==22.1' \
     && python3 -m pip install --no-cache-dir virtualbmc==${VERSION} \
     && apt-get remove -y python3-dev libvirt-dev pkg-config gcc \
     && rm -rf /var/lib/apt/lists
