@@ -10,7 +10,7 @@
         "^\\.github\\/workflows\\/build-.*\\.yml"
       ],
       "matchStrings":[
-        "- (?<currentValue>.*?)  # renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)"
+        "- (?<currentValue>.*?)  # renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
      ]
     }
   ]
