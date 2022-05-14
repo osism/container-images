@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - 21.09.2
+          - 21.09.2  # renovate: datasource=docker depName=b4bz/homer
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
