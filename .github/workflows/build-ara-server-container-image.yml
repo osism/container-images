@@ -24,7 +24,7 @@ jobs:
       matrix:
         version:
           - latest
-          - 1.5.8
+          - 1.5.8  # renovate: datasource=pypi depName=ara
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
