@@ -4,5 +4,5 @@ ansible==5.9.0
 debops==3.0.2
 netaddr==0.8.0
 python-gilt==1.2.3
-requests==2.27.1
+requests==2.28.0
 ruamel.yaml==0.17.21
