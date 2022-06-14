@@ -1,6 +1,6 @@
 # build stage
 FROM node:lts-alpine as build-stage
-ARG VERSION=22.02.2  # renovate: datasource=docker depName=b4bz/homer
+ARG VERSION=v22.06.1  # renovate: datasource=docker depName=b4bz/homer
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN yarn install --frozen-lockfile \
 
 # production stage
 FROM alpine:3.11
-ARG VERSION=22.02.2  # renovate: datasource=docker depName=b4bz/homer
+ARG VERSION=v22.06.1  # renovate: datasource=docker depName=b4bz/homer
 
 ENV USER darkhttpd
 ENV GROUP darkhttpd
