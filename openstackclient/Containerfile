@@ -28,7 +28,7 @@ RUN apk add --no-cache \
          grep -q "$package" /requirements/upper-constraints.txt && \
          echo "$package" >> /packages.txt || true; \
        done < /requirements.txt \
-    && pip3 --no-cache-dir install --upgrade 'pip==22.1.2' \
+    && pip3 --no-cache-dir install --upgrade 'pip==22.2' \
     && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
     && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt ospurge \
     && rm -rf /requirements \
