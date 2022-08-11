@@ -3,8 +3,6 @@ name: Build nexus container image
 
 "on":
   workflow_dispatch:
-  schedule:
-    - cron: "0 3 * * *"
   push:
     paths:
       - .github/workflows/build-nexus-container-image.yml
