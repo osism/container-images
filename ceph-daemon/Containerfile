@@ -1,5 +1,5 @@
 ARG VERSION
-FROM quay.io/ceph/daemon:$VERSION-centos-stream8
+FROM quay.io/ceph/daemon:$VERSION-centos-stream8-x86_64
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
