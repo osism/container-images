@@ -4,8 +4,8 @@ ARG VERSION=v22.07.2  # renovate: datasource=docker depName=b4bz/homer
 
 WORKDIR /app
 
-ADD https://github.com/bastienwirtz/homer/archive/refs/tags/v${VERSION}.tar.gz /app
-RUN tar xvzf v${VERSION}.tar.gz
+ADD https://github.com/bastienwirtz/homer/archive/refs/tags/${VERSION}.tar.gz /app
+RUN tar xvzf ${VERSION}.tar.gz
 
 WORKDIR /app/homer-${VERSION}
 
