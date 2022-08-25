@@ -6,15 +6,15 @@ WORKDIR /app
 
 ADD https://github.com/bastienwirtz/homer/archive/refs/tags/${VERSION}.tar.gz /app
 RUN tar xvzf ${VERSION}.tar.gz
+RUN mv /app/homer-* /app/homer  # ugly, but allows us to ditch the hussle with docker tags containing "v" or not.
 
-WORKDIR /app/homer-${VERSION}
+WORKDIR /app/homer
 
 RUN yarn install --frozen-lockfile \
     && yarn build
 
 # production stage
 FROM alpine:3.11
-ARG VERSION=v22.07.2  # renovate: datasource=docker depName=b4bz/homer
 
 ENV USER darkhttpd
 ENV GROUP darkhttpd
@@ -25,8 +25,8 @@ ENV PORT 8080
 RUN addgroup -S ${GROUP} -g ${GID} && adduser -D -S -u ${UID} ${USER} ${GROUP} && \
     apk add -U --no-cache su-exec darkhttpd
 
-COPY --from=build-stage --chown=${USER}:${GROUP} /app/homer-${VERSION}/dist /www/
-COPY --from=build-stage --chown=${USER}:${GROUP} /app/homer-${VERSION}/dist/assets /www/default-assets
+COPY --from=build-stage --chown=${USER}:${GROUP} /app/homer/dist /www/
+COPY --from=build-stage --chown=${USER}:${GROUP} /app/homer/dist/assets /www/default-assets
 COPY files/entrypoint.sh /entrypoint.sh
 COPY files/*.png /www/
 
