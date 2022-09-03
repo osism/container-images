@@ -106,11 +106,11 @@ def get_api_docker_latest_tag(owner, repo, schema, release, page_NUM=1):
 ##############################################################################
 
 
-def get_octopus_latest_tag():
+def get_quincy_latest_tag():
     rvalue = get_api_docker_latest_tag("ceph",
                                        "daemon-base",
                                        "vNUM.NUM.NUM-stable-NUM.NUM-STRING-*",
-                                       "octopus")
+                                       "quincy")
     # Transform vNUM.NUM.NUM-stable-NUM.NUM-STRING-*
     # to vNUM.NUM.NUM-stable-NUM.NUM-STRING
     rvalue = rvalue.split("-")
@@ -131,7 +131,7 @@ def get_pacific_latest_tag():
 
 
 def set_build_docker_image(
-        latest_octopus_verison,
+        latest_quincy_verison,
         latest_pacific_version):
     print(locals().values())
 
@@ -141,8 +141,8 @@ def set_build_docker_image(
     with open(file, "w") as stream:
         for line in buf:
             latest_version = ""
-            if ("-octopus" in line and not line.startswith("#")):
-                latest_version = latest_octopus_verison
+            if ("-quincy" in line and not line.startswith("#")):
+                latest_version = latest_quincy_verison
             if ("-pacific" in line and not line.startswith("#")):
                 latest_version = latest_pacific_version
 
@@ -155,5 +155,5 @@ def set_build_docker_image(
 # Main
 ##############################################################################
 set_build_docker_image(
-    get_octopus_latest_tag(),
+    get_quincy_latest_tag(),
     get_pacific_latest_tag())
