@@ -1,5 +1,5 @@
-ARG UBUNTU_VERSION=20.04
-FROM ubuntu:${UBUNTU_VERSION}
+ARG DEBIAN_VERSION=bullseye
+FROM debian:${DEBIAN_VERSION}
 
 ARG VERSION=octopus
 
@@ -20,11 +20,11 @@ RUN apt-get update \
         apt-transport-https \
         bash-completion \
         dumb-init \
-        gpg-agent \
+        gnupg2 \
         software-properties-common \
         wget \
     && wget -q -O- https://download.ceph.com/keys/release.asc | apt-key add - \
-    && apt-add-repository "deb https://download.ceph.com/debian-$VERSION/ focal main" \
+    && apt-add-repository "deb https://download.ceph.com/debian-$VERSION/ bullseye main" \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         ceph \
