@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - 3.41.1  # renovate: datasource=docker depName=sonatype/nexus3
+          - 3.42.0  # renovate: datasource=docker depName=sonatype/nexus3
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
