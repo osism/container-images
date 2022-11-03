@@ -20,11 +20,6 @@ jobs:
 
   build-ara-server-container-image:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        version:
-          - latest
-          - 1.5.8  # renovate: datasource=pypi depName=ara
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -46,7 +41,6 @@ jobs:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
           IMAGE: ara-server
           REPOSITORY: osism/ara-server
-          VERSION: ${{ matrix.version }}
 
       - name: Push container image
         run: |
@@ -55,7 +49,6 @@ jobs:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
           IMAGE: ara-server
           REPOSITORY: osism/ara-server
-          VERSION: ${{ matrix.version }}
         if: |
           github.repository == 'osism/container-images' &&
           github.ref == 'refs/heads/main'
