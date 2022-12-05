@@ -1,13 +1,16 @@
-ARG VERSION=v3.2.5  # renovate: datasource=docker depName=quay.io/netboxcommunity/netbox
+ARG VERSION=v3.3.9  # renovate: datasource=docker depName=quay.io/netboxcommunity/netbox
 FROM quay.io/netboxcommunity/netbox:${VERSION}
 
 COPY requirements.txt /requirements.txt
 
-RUN apk add --update --no-cache --virtual .build-deps \
-      build-base \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
       git \
     && /opt/netbox/venv/bin/pip3 install --no-cache-dir -r /requirements.txt \
-    && apk del .build-deps
+    && apt-get remove -y \
+      git \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
