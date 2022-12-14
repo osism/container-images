@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - v3.3.9  # renovate: datasource=docker depName=quay.io/netboxcommunity/netbox
+          - v3.3.10  # renovate: datasource=docker depName=quay.io/netboxcommunity/netbox
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
