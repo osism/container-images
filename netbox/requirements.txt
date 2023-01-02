@@ -1,6 +1,6 @@
 netbox-bgp==0.8.1
 netbox-dns==0.16.0
 netbox-initializers==3.4.0
-netbox-secretstore==1.3.0
+netbox-secretstore==1.4.1
 nextbox-ui-plugin==0.11.0
 git+https://github.com/osism/netbox-plugin-osism.git@main
