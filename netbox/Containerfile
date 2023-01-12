@@ -12,6 +12,9 @@ RUN apt-get update \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
+# NOTE: Can be removed after merge & release of https://github.com/k01ek/netbox-bgp/pull/117
+COPY files/netbox-bgp-init.py /opt/netbox/venv/lib/python3.10/site-packages/netbox_bgp/__init__.py
+
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \
