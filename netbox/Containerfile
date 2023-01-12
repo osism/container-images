@@ -2,11 +2,13 @@ ARG VERSION=v3.4.2  # renovate: datasource=docker depName=quay.io/netboxcommunit
 FROM quay.io/netboxcommunity/netbox:${VERSION}
 
 COPY requirements.txt /requirements.txt
+COPY files/launch.sh /opt/netbox/launch.sh
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       git \
     && /opt/netbox/venv/bin/pip3 install --no-cache-dir -r /requirements.txt \
+    && chmod +x /opt/netbox/launch.sh \
     && apt-get remove -y \
       git \
     && apt-get autoremove -y \
@@ -14,6 +16,8 @@ RUN apt-get update \
 
 # NOTE: Can be removed after merge & release of https://github.com/k01ek/netbox-bgp/pull/117
 COPY files/netbox-bgp-init.py /opt/netbox/venv/lib/python3.10/site-packages/netbox_bgp/__init__.py
+
+CMD [ "/opt/netbox/docker-entrypoint.sh", "/opt/netbox/launch.sh" ]
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
