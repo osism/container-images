@@ -1,0 +1,10 @@
+---
+- project:
+    merge-mode: squash-merge
+    default-branch: main
+    check:
+      jobs:
+        - yamllint
+    gate:
+      jobs:
+        - yamllint
