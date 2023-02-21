@@ -5,6 +5,8 @@
     check:
       jobs:
         - yamllint
+        - flake8
     gate:
       jobs:
         - yamllint
+        - flake8
