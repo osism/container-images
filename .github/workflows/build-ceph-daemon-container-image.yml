@@ -23,8 +23,8 @@ jobs:
     strategy:
       matrix:
         version:
-          - v6.0.8-stable-6.0-pacific
-          - v7.0.0-stable-7.0-quincy
+          - v6.0.10-stable-6.0-pacific
+          - v7.0.2-stable-7.0-quincy
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
