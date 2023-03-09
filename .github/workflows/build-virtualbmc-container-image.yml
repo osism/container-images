@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - 3.0.0  # renovate: datasource=pypi depName=virtualbmc
+          - 3.0.1  # renovate: datasource=pypi depName=virtualbmc
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
