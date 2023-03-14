@@ -1,4 +1,4 @@
-ARG VERSION=v3.4.5  # renovate: datasource=docker depName=quay.io/netboxcommunity/netbox
+ARG VERSION=v3.4.6  # renovate: datasource=docker depName=quay.io/netboxcommunity/netbox
 FROM quay.io/netboxcommunity/netbox:${VERSION}
 
 COPY requirements.txt /requirements.txt
