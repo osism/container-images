@@ -12,3 +12,8 @@
         - flake8
         - hadolint
         - yamllint
+    periodic-daily:
+      jobs:
+        - flake8
+        - hadolint
+        - yamllint
