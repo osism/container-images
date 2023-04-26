@@ -1,6 +1,6 @@
 Jinja2==3.1.2
 PyYAML==6.0
-ansible==7.4.0
+ansible==7.5.0
 debops==3.0.4
 netaddr==0.8.0
 python-gilt==1.2.3
