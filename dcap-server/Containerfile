@@ -1,8 +1,11 @@
 FROM ubuntu:20.04
 
-ARG API_KEY
-ARG ADMIN_PASSWORD
-ARG USER_PASSWORD
+# NOTE: This container image is an example of a DCAP server.
+#       The image must be built for each environment itself.
+
+ENV API_KEY=secret
+ENV ADMIN_PASSWORD=password
+ENV USER_PASSWORD=password
 
 COPY files/sources.list /etc/apt/sources.list
 RUN apt update \
@@ -19,9 +22,10 @@ RUN curl -s -S -o /tmp/setup.sh -sL https://deb.nodesource.com/setup_14.x \
 RUN apt install -y sqlite3 python3 build-essential \
   && mkdir -p /etc/init
 
-RUN wget https://download.01.org/intel-sgx/sgx-dcap/1.12.1/linux/distro/ubuntu20.04-server/debian_pkgs/web/sgx-dcap-pccs/sgx-dcap-pccs_1.12.101.1-focal1_amd64.deb
+RUN wget https://download.01.org/intel-sgx/sgx-dcap/1.12.1/linux/distro/ubuntu20.04-server/sgx_debian_local_repo.tgz \
+  && tar xvzf sgx_debian_local_repo.tgz
 
-RUN (printf "Y\n\n\nY\n\nN\n$API_KEY\n\n$ADMIN_PASSWORD\n$ADMIN_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\nY\nCN\nSH\nSH\nIntel\nESI\nPCCS Server\n.\n\n\n") | dpkg -i sgx-dcap-pccs_1.12.101.1-focal1_amd64.deb
+RUN (printf "Y\n\n\nY\n\nN\n$API_KEY\n\n$ADMIN_PASSWORD\n$ADMIN_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\nY\nCN\nSH\nSH\nIntel\nESI\nPCCS Server\n.\n\n\n") | dpkg -i sgx_debian_local_repo/pool/main/s/sgx-dcap-pccs/sgx-dcap-pccs_1.12.101.1-focal1_amd64.deb
 
 WORKDIR /opt/intel/sgx-dcap-pccs/
 
