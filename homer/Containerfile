@@ -14,7 +14,7 @@ RUN yarn install --frozen-lockfile \
     && yarn build
 
 # production stage
-FROM alpine:3.17
+FROM alpine:3.18
 
 ENV USER darkhttpd
 ENV GROUP darkhttpd
