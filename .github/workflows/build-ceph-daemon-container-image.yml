@@ -24,7 +24,7 @@ jobs:
       matrix:
         version:
           - v6.0.10-stable-6.0-pacific  # renovate: datasource=docker depName=quay.io/ceph/daemon
-          - v7.0.1-stable-7.0-quincy    # renovate: datasource=docker depName=quay.io/ceph/daemon
+          - v7.0.3-stable-7.0-quincy  # renovate: datasource=docker depName=quay.io/ceph/daemon
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
