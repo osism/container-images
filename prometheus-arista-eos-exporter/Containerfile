@@ -12,7 +12,7 @@ RUN apk add --no-cache --virtual .build-deps \
     && apk add --no-cache \
       dumb-init \
     && pip3 install --no-cache-dir -r /requirements.txt \
-    && pip3 install --no-cache-dir git+https://github.com/Showmax/arista-eos-exporter \
+    && pip3 install --no-cache-dir git+https://github.com/tibeer/arista-eos-exporter \
     && apk del .build-deps
 
 ENTRYPOINT ["usr/bin/dumb-init", "--", "python", "/usr/local/bin/main.py", "-c", "/config.yml"]

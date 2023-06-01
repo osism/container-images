@@ -1,0 +1,11 @@
+FROM ubuntu:22.04
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gnupg1 \
+        gpgv1 \
+        moreutils \
+    && apt-get -y autoremove \
+    && rm -rf /var/lib/apt/lists/*
+
+CMD ["bash", "-c", "mkdir -p /opt/aptly/public; mkdir -p /opt/aptly/pool; while ! $(test -f /opt/aptly/public/gpgkey); do sleep 1; echo 'waiting for gpg key creation ...' | ts; done"]
