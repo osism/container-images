@@ -1,0 +1,29 @@
+FROM ubuntu:22.04
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bzip2 \
+        ca-certificates \
+        curl \
+        gnupg1 \
+        gpgv1 \
+        python3 \
+        python3-pip \
+        screen \
+        xz-utils \
+    && curl -sL https://github.com/aptly-dev/aptly/releases/download/v1.5.0/aptly_1.5.0_amd64.deb --output /aptly.deb \
+    && dpkg -i /aptly.deb \
+    && rm /aptly.deb \
+    && curl -sL https://github.com/mikefarah/yq/releases/download/v4.33.3/yq_linux_amd64.tar.gz --output /yq.tar.gz \
+    && tar xzf yq.tar.gz ./yq_linux_amd64 \
+    && mv ./yq_linux_amd64 /usr/local/bin/yq \
+    && rm /yq.tar.gz \
+    && apt-get -y autoremove \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY aptly.conf /etc/
+COPY requirements.txt /requirements.txt
+RUN pip3 install --no-cache-dir --no-deps -r /requirements.txt
+COPY main.py /main.py
+
+CMD ["python3", "/main.py"]

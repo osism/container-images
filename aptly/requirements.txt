@@ -1,0 +1,10 @@
+PyYAML
+certifi
+chardet
+charset_normalizer
+idna
+loguru
+munch
+requests
+six
+urllib3
