@@ -3,4 +3,4 @@ PyYAML==6.0
 eventlet==0.33.3
 gevent==22.10.2
 gunicorn==20.1.0
-mysqlclient==2.1.1
+mysqlclient==2.2.0
