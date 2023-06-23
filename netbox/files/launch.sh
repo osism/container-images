@@ -6,6 +6,8 @@
 
 # The initialisation of additional objects has been outsourced to
 # a plug-in and must still be executed separately.
-python3 /opt/netbox/netbox/manage.py load_initializer_data --path /opt/netbox/initializers
+if [[ $INITIALIZERS_ENABLED == "True" ]]; then
+    python3 /opt/netbox/netbox/manage.py load_initializer_data --path /opt/netbox/initializers
+fi
 
 exec /opt/netbox/launch-netbox.sh
