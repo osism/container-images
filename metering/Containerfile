@@ -1,5 +1,5 @@
-ARG IMAGE_VERSION=latest
-FROM python:${IMAGE_VERSION}
+ARG PYTHON_VERSION=3.10
+FROM python:${PYTHON_VERSION}
 
 ARG USER_ID=45000
 ARG GROUP_ID=45000
@@ -13,7 +13,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         git \
-    && git clone https://github.com/cloudandheat/odoo_openstack_metering.git \
+    && git clone https://github.com/cloudandheat/odoo_openstack_metering.git /opt/app \
     && apt-get remove -y \
         git \
     && apt-get clean \
@@ -22,7 +22,6 @@ RUN apt-get update \
       /var/lib/apt/lists/* \
       /var/tmp/*
 
-COPY ./odoo_openstack_metering /opt/app
 WORKDIR /opt/app
 RUN pip install -r requirements.txt
 
@@ -30,9 +29,9 @@ USER dragon
 VOLUME ["/data"]
 ENTRYPOINT ["python", "metering_api.py", "-v"]
 
-
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \
       "org.opencontainers.image.url"="https://www.osism.tech" \
       "org.opencontainers.image.vendor"="OSISM GmbH"
+
