@@ -2,9 +2,11 @@
 
 FROM alpine:3 AS builder
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ARG VERSION
 
-# hadolint ignore=DL3003,SC2035,DL4006
+# hadolint ignore=DL3003,SC2035
 RUN apk add --no-cache ca-certificates curl jq && \
     apk add --no-cache --virtual .build-depends \
       file gnupg g++ make \

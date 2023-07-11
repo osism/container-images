@@ -13,7 +13,6 @@ COPY files/fixtures.json /fixtures.json
 COPY files/local_settings.py /etc/patchman/local_settings.py
 COPY files/run.sh /run.sh
 
-# hadolint ignore=DL3013,DL3018
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
       curl \

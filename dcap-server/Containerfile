@@ -1,26 +1,31 @@
 FROM ubuntu:22.04
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ARG API_KEY
 ARG ADMIN_PASSWORD
 ARG USER_PASSWORD
 
 COPY files/sources.list /etc/apt/sources.list
-RUN apt update \
-  && apt install -y vim net-tools iproute2 curl sudo cracklib-runtime wget
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y vim net-tools iproute2 curl sudo cracklib-runtime \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
 
 RUN curl -s -S -o /tmp/setup.sh -sL https://deb.nodesource.com/setup_14.x \
-  && chmod 755 /tmp/setup.sh \
-  && /tmp/setup.sh \
-  && apt-get install nodejs -y \
-  && rm /tmp/setup.sh
+    && chmod 755 /tmp/setup.sh \
+    && /tmp/setup.sh \
+    && apt-get install --no-install-recommends -y nodejs \
+    && rm /tmp/setup.sh
 
-RUN apt install -y sqlite3 python3 build-essential \
-  && mkdir -p /etc/init
+RUN apt-get install --no-install-recommends -y sqlite3 python3 build-essential \
+    && mkdir -p /etc/init
 
-RUN wget https://download.01.org/intel-sgx/sgx-dcap/1.12.1/linux/distro/ubuntu20.04-server/debian_pkgs/web/sgx-dcap-pccs/sgx-dcap-pccs_1.12.101.1-focal1_amd64.deb
+RUN curl https://download.01.org/intel-sgx/sgx-dcap/1.12.1/linux/distro/ubuntu20.04-server/debian_pkgs/web/sgx-dcap-pccs/sgx-dcap-pccs_1.12.101.1-focal1_amd64.deb
 
+# hadolint ignore=SC2059
 RUN (printf "Y\n\n\nY\n\nN\n$API_KEY\n\n$ADMIN_PASSWORD\n$ADMIN_PASSWORD\n$USER_PASSWORD\n$USER_PASSWORD\nY\nCN\nSH\nSH\nIntel\nESI\nPCCS Server\n.\n\n\n") | dpkg -i sgx-dcap-pccs_1.12.101.1-focal1_amd64.deb
 
 WORKDIR /opt/intel/sgx-dcap-pccs/
