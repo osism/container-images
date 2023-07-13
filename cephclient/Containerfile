@@ -14,7 +14,6 @@ COPY files/run.sh /run.sh
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# hadolint ignore=DL3046
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         apt-transport-https \
@@ -30,7 +29,7 @@ RUN apt-get update \
         ceph \
         fio \
     && groupadd -g $GROUP_ID dragon \
-    && useradd -g dragon -u $USER_ID -m -d /home/dragon dragon \
+    && useradd -g dragon -u $USER_ID -m -d -l /home/dragon dragon \
     && apt-get remove -y \
         apt-transport-https \
         software-properties-common \

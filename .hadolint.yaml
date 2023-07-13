@@ -1,6 +1,7 @@
 ---
 ignored:
-  - DL3007
-  - DL3008
-  - DL3018
-  - DL3059
+  - DL3007 # we allways use latest where it is possible
+  - DL3008 # we decided not to pin versions
+  - DL3013 # we decided not to pin versions
+  - DL3018 # we decided not to pin versions
+  - DL3059 # Better readability

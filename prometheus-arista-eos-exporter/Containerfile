@@ -6,7 +6,6 @@ ARG VERSION=latest
 COPY files/config.yml /config.yml
 COPY files/requirements.txt /requirements.txt
 
-# hadolint ignore=DL3013,DL3018
 RUN apk add --no-cache --virtual .build-deps \
       git \
     && apk add --no-cache \
