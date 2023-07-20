@@ -13,7 +13,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         git \
-    && git clone https://github.com/cloudandheat/odoo_openstack_metering.git /opt/app \
+    && git clone https://github.com/sovereigncloudstack/metering /opt/app \
     && apt-get remove -y \
         git \
     && apt-get clean \
