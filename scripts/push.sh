@@ -39,6 +39,10 @@ if [[ $IMAGE == "ara-server" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
     fi
+
+    # always push the latest image
+    docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
+    docker push "$REPOSITORY:latest"
 fi
 
 # push e.g. osism/openstackclient:5.5.0
