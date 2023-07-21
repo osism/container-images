@@ -11,6 +11,7 @@ RUN apt-get update \
       libmariadb-dev \
       libssl-dev \
       libyaml-dev \
+      pkg-config \
     && mkdir /wheels \
     && python3 -m pip install --no-cache-dir -U 'pip==23.2' \
     && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels -r /requirements.txt \
