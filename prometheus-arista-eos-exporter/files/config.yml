@@ -1,7 +1,0 @@
----
-listen_port: 9200
-listen_addr: 0.0.0.0
-protocol: http
-disable_certificate_validation: true
-loglevel: INFO
-timeout: 20
