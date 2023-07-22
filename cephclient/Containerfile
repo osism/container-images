@@ -30,6 +30,13 @@ RUN apt-get update \
         fio \
     && groupadd -g $GROUP_ID dragon \
     && useradd -g dragon -u $USER_ID -m -d /home/dragon dragon \
+    && if [ ! -e /etc/bash_completion.d/ ]; then \
+          mkdir -p /etc/bash_completion.d; \
+          cp /usr/share/bash-completion/completions/ceph /etc/bash_completion.d/ceph; \
+          cp /usr/share/bash-completion/completions/rados /etc/bash_completion.d/rados; \
+          cp /usr/share/bash-completion/completions/radosgw-admin /etc/bash_completion.d/radosgw-admin; \
+          cp /usr/share/bash-completion/completions/rbd /etc/bash_completion.d/rbd; \
+       fi \
     && apt-get remove -y \
         apt-transport-https \
         software-properties-common \
