@@ -26,7 +26,7 @@ RUN apt-get update \
     && apt-add-repository "deb https://download.ceph.com/debian-$VERSION/ bullseye main" \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        ceph \
+        ceph-common \
         fio \
     && groupadd -g $GROUP_ID dragon \
     && useradd -g dragon -u $USER_ID -m -d /home/dragon dragon \
