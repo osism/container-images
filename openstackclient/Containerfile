@@ -29,7 +29,6 @@ RUN apk add --no-cache \
        done < /requirements.txt \
     && pip3 --no-cache-dir install --upgrade 'pip==23.2.1' \
     && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
-    && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt ospurge \
     && rm -rf /requirements \
       /requirements.txt \
       /packages.txt \
