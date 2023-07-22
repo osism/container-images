@@ -17,8 +17,10 @@ fi
 
 docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 
-# push e.g. osism/cephclient:pacific
-docker push "$REPOSITORY:$VERSION"
+if [[ $IMAGE != "netbox" ]]; then
+    # push e.g. osism/cephclient:pacific
+    docker push "$REPOSITORY:$VERSION"
+fi
 
 if [[ $IMAGE == "cgit" ]]; then
     version=$(docker run --rm "$REPOSITORY:$VERSION" /usr/libexec/cgit/cgi-bin/cgit --version | head -n1 | awk '{ print $2 }' | sed 's/v*//')
@@ -39,10 +41,6 @@ if [[ $IMAGE == "ara-server" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
     fi
-
-    # always push the latest image
-    docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
-    docker push "$REPOSITORY:latest"
 fi
 
 # push e.g. osism/openstackclient:5.5.0
@@ -83,6 +81,20 @@ if [[ $IMAGE == "cephclient" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
     fi
+fi
+
+# push e.g. osism/netbox:3.4.8
+if [[ $IMAGE == "netbox" ]]; then
+    if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${VERSION}" > /dev/null; then
+        echo "The image ${REPOSITORY}:${VERSION} already exists."
+    else
+        docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
+        docker push "$REPOSITORY:$VERSION"
+    fi
+
+    # always push a latest osism/netbox image
+    docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
+    docker push "$REPOSITORY:latest"
 fi
 
 docker rmi "$REPOSITORY:$VERSION"
