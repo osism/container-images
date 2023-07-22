@@ -52,6 +52,8 @@ jobs:
           scripts/push.sh
         env:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           IMAGE: netbox
           REPOSITORY: osism/netbox
           VERSION: ${{ matrix.version }}
