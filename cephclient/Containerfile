@@ -29,7 +29,7 @@ RUN apt-get update \
         ceph \
         fio \
     && groupadd -g $GROUP_ID dragon \
-    && useradd -g dragon -u $USER_ID -m -d -l /home/dragon dragon \
+    && useradd -g dragon -u $USER_ID -m -d /home/dragon dragon \
     && apt-get remove -y \
         apt-transport-https \
         software-properties-common \
