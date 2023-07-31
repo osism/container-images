@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.10
 FROM python:${PYTHON_VERSION}-alpine
 
 ARG VERSION=zed
@@ -27,11 +27,14 @@ RUN apk add --no-cache \
          grep -q "$package" /requirements/upper-constraints.txt && \
          echo "$package" >> /packages.txt || true; \
        done < /requirements.txt \
+    && sed -i "/^PyYAML===.*$/d" /requirements/upper-constraints.txt \
+    && echo "PyYAML>6.0.0" >> /packages.txt \
     && pip3 --no-cache-dir install --upgrade 'pip==23.2.1' \
     && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
-    && rm -rf /requirements \
-      /requirements.txt \
+    && rm -rf \
       /packages.txt \
+      /requirements \
+      /requirements.txt \
     && apk del .build-deps \
     && openstack complete > /osc.bash_completion \
     && addgroup -g $GROUP_ID dragon \
