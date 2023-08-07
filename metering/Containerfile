@@ -14,6 +14,8 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         git \
     && git clone https://github.com/sovereigncloudstack/metering /opt/app \
+    && groupadd -g $GROUP_ID dragon \
+    && useradd -g dragon -u $USER_ID -m -d /home/dragon dragon \
     && apt-get remove -y \
         git \
     && apt-get clean \
