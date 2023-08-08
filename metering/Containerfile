@@ -29,7 +29,7 @@ RUN pip install -r requirements.txt
 
 USER dragon
 VOLUME ["/data"]
-ENTRYPOINT ["python", "metering_api.py", "-v"]
+ENTRYPOINT ["python", "metersink", "-v"]
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
