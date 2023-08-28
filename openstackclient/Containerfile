@@ -18,8 +18,9 @@ RUN apk add --no-cache \
       openssl-dev \
       python3-dev \
       rust \
-    && if [ $VERSION = "antelope" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
-    && if [ $VERSION != "antelope" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
+    && if [ $VERSION = "bobcat" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
+    && if [ $VERSION = "antelope" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-2023.1.tar.gz; fi \
+    && if [ $VERSION = "zed" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-zed.tar.gz; fi \
     && mkdir /requirements \
     && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
     && rm -rf /requirements.tar.gz \
