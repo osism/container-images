@@ -8,7 +8,9 @@ ARG GROUP_ID=45000
 
 COPY files/requirements.txt /requirements.txt
 
-RUN apk add --no-cache \
+RUN apk update --no-cache \
+    && apk upgrade --no-cache --available \
+    && apk add --no-cache \
       dumb-init \
       libstdc++ \
     && apk add --no-cache --virtual .build-deps \
