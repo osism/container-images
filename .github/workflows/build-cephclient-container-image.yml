@@ -25,6 +25,7 @@ jobs:
         version:
           - pacific
           - quincy
+          - reef
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
