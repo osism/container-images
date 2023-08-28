@@ -23,7 +23,6 @@ jobs:
     strategy:
       matrix:
         version:
-          - pacific
           - quincy
           - reef
     steps:
