@@ -26,6 +26,7 @@ jobs:
           - yoga
           - zed
           - antelope
+          - bobcat
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
