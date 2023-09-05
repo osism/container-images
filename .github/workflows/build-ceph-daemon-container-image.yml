@@ -27,7 +27,7 @@ jobs:
           - v7.0.3-stable-7.0-quincy  # renovate: datasource=docker depName=quay.io/ceph/daemon
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup docker
         uses: docker/setup-buildx-action@v2

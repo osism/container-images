@@ -26,7 +26,7 @@ jobs:
           - v23.05.1  # renovate: datasource=docker depName=b4bz/homer
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup docker
         uses: docker/setup-buildx-action@v2

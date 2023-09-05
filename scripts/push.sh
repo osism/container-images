@@ -52,6 +52,11 @@ if [[ $IMAGE == "openstackclient" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
     fi
+
+    if [[ $VERSION == "antelope" ]]; then
+        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.1"
+        docker push "$REPOSITORY:2023.1"
+    fi
 fi
 
 # push e.g. osism/ceph-daemon:12.2.13 + osism/ceph-daemon:pacific

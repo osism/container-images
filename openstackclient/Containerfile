@@ -1,14 +1,16 @@
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION=3.11
 FROM python:${PYTHON_VERSION}-alpine
 
-ARG VERSION=zed
+ARG VERSION=bobcat
 
 ARG USER_ID=45000
 ARG GROUP_ID=45000
 
 COPY files/requirements.txt /requirements.txt
 
-RUN apk add --no-cache \
+RUN apk update --no-cache \
+    && apk upgrade --no-cache --available \
+    && apk add --no-cache \
       dumb-init \
       libstdc++ \
     && apk add --no-cache --virtual .build-deps \
@@ -18,8 +20,9 @@ RUN apk add --no-cache \
       openssl-dev \
       python3-dev \
       rust \
-    && if [ $VERSION = "antelope" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
-    && if [ $VERSION != "antelope" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
+    && if [ $VERSION = "bobcat" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
+    && if [ $VERSION = "antelope" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-2023.1.tar.gz; fi \
+    && if [ $VERSION = "zed" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-zed.tar.gz; fi \
     && mkdir /requirements \
     && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
     && rm -rf /requirements.tar.gz \
