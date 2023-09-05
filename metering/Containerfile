@@ -29,7 +29,8 @@ RUN pip install -r requirements.txt
 
 USER dragon
 VOLUME ["/data"]
-ENTRYPOINT ["python", "-m", "metersink", "-v"]
+VOLUME ["/configuration"]
+ENTRYPOINT ["python", "-m", "metersink", "-c", "/configuration/settings.conf", "-v"]
 
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
