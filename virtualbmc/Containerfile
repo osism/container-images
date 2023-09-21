@@ -1,7 +1,7 @@
 ARG PYTHON_VERSION=3.10
 FROM python:${PYTHON_VERSION}-slim
 
-ARG VERSION=3.0.1  # renovate: datasource=pypi depName=virtualbmc
+ARG VERSION=3.1.0  # renovate: datasource=pypi depName=virtualbmc
 
 ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 
