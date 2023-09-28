@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The Python 3.12 base image is now used for the openstackclient container image.
