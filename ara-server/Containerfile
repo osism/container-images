@@ -1,4 +1,4 @@
-FROM python:3.11-slim as builder
+FROM python:3.12-slim as builder
 
 COPY files/requirements.txt /requirements.txt
 
@@ -17,7 +17,7 @@ RUN apt-get update \
     && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels --pre -r /requirements.txt \
     && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels "ara[server]"
 
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 ENV TZ=UTC
 
