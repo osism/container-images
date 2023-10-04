@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    New environment variables have been added to the ara-server
+    container image. With `ARA_THREADS` the number of used threads
+    can be configured. With `ARA_WORKER_CONNECTIONS` the number of
+    worker connections can be configured. The default of `ARA_WORKER_CLASS`
+    changed to gevent.
