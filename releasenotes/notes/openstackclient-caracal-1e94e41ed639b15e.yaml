@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The openstackclient container image is now also available for
+    OpenStack Caracal (2024.1) which is currently in development.
