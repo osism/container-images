@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Use `quay.io/ceph/ceph` as base image for the ceph-daemon image.

@@ -1,5 +1,5 @@
 ARG VERSION
-FROM quay.io/ceph/daemon:$VERSION
+FROM quay.io/ceph/ceph:$VERSION
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
