@@ -1,0 +1,40 @@
+FROM debian:bookworm AS builder
+
+ARG VERSION=2.6.6
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN apt-get update && apt-get install -f -y build-essential wget libevent-dev \
+    autoconf automake autopoint autotools-dev bsdextrautils comerr-dev debhelper dh-autoreconf \
+    dh-strip-nondeterminism dwz file gettext gettext-base groff-base heimdal-multidev \
+    intltool-debian libarchive-zip-perl libargon2-1 libargon2-dev libasn1-8-heimdal \
+    libdebhelper-perl libedit2 libelf1 libevent-2.1-7 libfile-stripnondeterminism-perl libgmp-dev libgmpxx4ldbl \
+    libgnutls-dane0 libgnutls-openssl27 libgnutls28-dev libgnutlsxx30 libgssapi3-heimdal \
+    libhcrypto5-heimdal libhdb9-heimdal libheimbase1-heimdal libheimntlm0-heimdal libhx509-5-heimdal \
+    libicu72 libidn2-dev libkadm5clnt7-heimdal libkadm5srv8-heimdal libkafs0-heimdal \
+    libkdc2-heimdal libkrb5-26-heimdal libltdl-dev libltdl7 libmagic-mgc libmagic1 libodbc2 libodbccr2 \
+    libodbcinst2 libotp0-heimdal libp11-kit-dev libperl-dev libpipeline1 libpkgconf3 \
+    libroken19-heimdal libsasl2-dev libsl0-heimdal libsub-override-perl libtasn1-6-dev libtool libuchardet0 \
+    libunbound8 libwind0-heimdal libwrap0 libwrap0-dev libxml2 m4 man-db nettle-dev \
+    openssl pkg-config pkgconf pkgconf-bin po-debconf sensible-utils unixodbc-common unixodbc-dev \
+    && wget http://deb.debian.org/debian/pool/main/o/openldap/openldap_${VERSION}+dfsg.orig.tar.xz \
+    && tar xf openldap_${VERSION}+dfsg.orig.tar.xz \
+    && cd openldap-${VERSION} \
+    && ./configure --enable-balancer=yes \
+    && make depend && make && make install
+
+FROM debian:bookworm
+
+RUN apt-get update && apt-get -f -y install libevent-core-2.1-7 libevent-extra-2.1-7 libsasl2-2
+
+COPY --from=builder /usr/local/etc /usr/local/etc/
+COPY --from=builder /usr/local/lib /usr/local/lib/
+COPY --from=builder /usr/local/libexec/lloadd /lloadd
+
+ENTRYPOINT ["/lloadd"]
+
+LABEL "org.opencontainers.image.documentation"="https://osism.github.io" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://www.osism.tech" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
