@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Set `CLIFF_FIT_WIDTH=1` in the OpenStack client container image to always fit
+    the table to the display width.

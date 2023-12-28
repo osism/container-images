@@ -51,6 +51,8 @@ WORKDIR /configuration
 
 VOLUME ["/configuration"]
 
+ENV CLIFF_FIT_WIDTH=1
+
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["openstack"]
 
