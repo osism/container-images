@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - v7.0.3-stable-7.0-quincy  # renovate: datasource=docker depName=quay.io/ceph/daemon
+          - latest-quincy
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
