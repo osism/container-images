@@ -3,6 +3,12 @@ FROM sonatype/nexus3:${VERSION}
 
 COPY files/scripts /scripts
 
+USER root
+
+RUN sed -i "s#etc/logback#logback#" /opt/sonatype/nexus/etc/logback/logback.xml
+
+USER nexus
+
 LABEL "org.opencontainers.image.documentation"="https://docs.osism.tech" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \
