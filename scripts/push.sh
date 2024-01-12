@@ -60,6 +60,9 @@ if [[ $IMAGE == "openstackclient" ]]; then
     if [[ $VERSION == "antelope" ]]; then
         docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.1"
         docker push "$REPOSITORY:2023.1"
+    elif [[ $VERSION == "bobcat" ]]; then
+        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.2"
+        docker push "$REPOSITORY:2023.2"
     fi
 fi
 
