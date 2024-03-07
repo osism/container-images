@@ -25,6 +25,7 @@ jobs:
         version:
           - latest-pacific
           - latest-quincy
+          - latest-reef
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
