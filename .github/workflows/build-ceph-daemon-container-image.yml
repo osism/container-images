@@ -23,6 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
+          - latest-pacific
           - latest-quincy
     steps:
       - name: Checkout code
