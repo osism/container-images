@@ -23,7 +23,8 @@ RUN apt-get update \
         software-properties-common \
         wget \
     && wget -q -O- https://download.ceph.com/keys/release.asc | apt-key add - \
-    && apt-add-repository "deb https://download.ceph.com/debian-$VERSION/ bullseye main" \
+    && if [ $VERSION = "quincy" ]; then apt-add-repository --yes "deb https://download.ceph.com/debian-quincy/ bullseye main"; fi \
+    && if [ $VERSION = "reef" ]; then add-apt-repository --yes -c main -U https://download.ceph.com/debian-reef/; add-apt-repository --yes -c main -U https://download.ceph.com/debian-reef/; fi \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         ceph-common \
