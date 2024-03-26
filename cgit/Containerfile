@@ -39,7 +39,7 @@ COPY --from=builder /install_root /
 COPY cgitrc /etc/cgitrc
 COPY httpd-cgit.conf /etc/httpd/conf.d/httpd-cgit.conf
 
-LABEL "org.opencontainers.image.documentation"="https://osism.github.io/docs/intro" \
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \
       "org.opencontainers.image.url"="https://quay.io/organization/osism" \

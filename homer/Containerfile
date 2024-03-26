@@ -37,7 +37,7 @@ EXPOSE ${PORT}
 VOLUME /www/assets
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 
-LABEL "org.opencontainers.image.documentation"="https://osism.github.io/docs/intro" \
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \
       "org.opencontainers.image.url"="https://quay.io/organization/osism" \
