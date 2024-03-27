@@ -56,7 +56,7 @@ VOLUME ["/etc/ceph"]
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["/run.sh"]
 
-LABEL "org.opencontainers.image.documentation"="https://osism.github.io/docs/intro" \
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \
       "org.opencontainers.image.url"="https://quay.io/organization/osism" \
