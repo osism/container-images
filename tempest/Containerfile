@@ -1,0 +1,63 @@
+FROM golang:bookworm as gobuild
+
+COPY --link --from=base /usr/local/lib/python*/site-packages/octavia_tempest_plugin/contrib/test_server/test_server.go $GOPATH/test_server.go
+RUN CGO_ENABLED=0 GOOS=linux go build \
+  -a \
+  -ldflags '-s -w -extldflags -static' \
+  -o /opt/octavia-tempest-plugin/test_server.bin \
+  test_server.go
+
+FROM python:3.12-slim-bookworm
+
+ARG VERSION=latest
+
+ARG USER_ID=45000
+ARG GROUP_ID=45000
+
+COPY --link --from=gobuild --chmod=0755 /opt/octavia-tempest-plugin/test_server.bin /opt/octavia-tempest-plugin/test_server.bin
+COPY --link files/requirements.txt /requirements.txt
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN <<EOF
+set -e
+set -x
+
+# install required packages
+apt-get update
+apt-get install --no-install-recommends -y \
+  build-essential \
+  iputils-ping \
+  openssh-client
+python3 -m pip install --no-cache-dir --upgrade 'pip==24.0'
+pip3 install --no-cache-dir -r /requirements.txt
+
+# add user
+groupadd -g "$GROUP_ID" dragon
+useradd -l -g dragon -u "$USER_ID" -m -d /home/dragon dragon
+
+
+# cleanpu
+apt-get remove -y build-essential
+apt-get autoremove -y
+apt-get clean
+rm -rf \
+  /var/lib/apt/lists/* \
+  /var/tmp/* \
+  /requirements.txt
+EOF
+
+USER dragon
+WORKDIR /home/dragon
+ENTRYPOINT ["/usr/local/bin/tempest"]
+CMD ["--help"]
+
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://quay.io/organization/osism" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
