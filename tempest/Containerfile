@@ -1,6 +1,14 @@
+FROM python:3.12-slim-bookworm as pre-gobuild
+
+RUN apt-get update
+RUN apt-get install --no-install-recommends -y build-essential
+RUN python3 -m pip install --no-cache-dir --upgrade 'pip==24.0'
+RUN pip3 install --no-cache-dir octavia-tempest-plugin
+
 FROM golang:bookworm as gobuild
 
-COPY --link --from=base /usr/local/lib/python*/site-packages/octavia_tempest_plugin/contrib/test_server/test_server.go $GOPATH/test_server.go
+COPY --link --from=pre-gobuild /usr/local/lib/python*/site-packages/octavia_tempest_plugin/contrib/test_server/test_server.go $GOPATH/test_server.go
+
 RUN CGO_ENABLED=0 GOOS=linux go build \
   -a \
   -ldflags '-s -w -extldflags -static' \
