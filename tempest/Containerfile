@@ -1,19 +1,33 @@
-FROM python:3.12-slim-bookworm as base
+FROM golang:bookworm as gobuild
+
+COPY --link --from=base /usr/local/lib/python*/site-packages/octavia_tempest_plugin/contrib/test_server/test_server.go $GOPATH/test_server.go
+RUN CGO_ENABLED=0 GOOS=linux go build \
+  -a \
+  -ldflags '-s -w -extldflags -static' \
+  -o /opt/octavia-tempest-plugin/test_server.bin \
+  test_server.go
+
+FROM python:3.12-slim-bookworm
+
+ARG VERSION=latest
+
 ARG USER_ID=45000
 ARG GROUP_ID=45000
 
-ENV DEBIAN_FRONTEND=noninteractive
-
+COPY --link --from=gobuild --chmod=0755 /opt/octavia-tempest-plugin/test_server.bin /opt/octavia-tempest-plugin/test_server.bin
 COPY --link files/requirements.txt /requirements.txt
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN <<EOF
 set -e
 set -x
 
+# install required packages
 apt-get update
 apt-get install --no-install-recommends -y \
   build-essential \
@@ -27,28 +41,15 @@ groupadd -g "$GROUP_ID" dragon
 useradd -l -g dragon -u "$USER_ID" -m -d /home/dragon dragon
 
 
+# cleanpu
 apt-get remove -y build-essential
 apt-get autoremove -y
 apt-get clean
-rm -rf /var/lib/apt/lists/* \
-       /var/tmp/* \
-       /requirements.txt
+rm -rf \
+  /var/lib/apt/lists/* \
+  /var/tmp/* \
+  /requirements.txt
 EOF
-
-
-
-FROM golang:bookworm as gobuild
-
-COPY --link --from=base /usr/local/lib/python*/site-packages/octavia_tempest_plugin/contrib/test_server/test_server.go $GOPATH/test_server.go
-RUN CGO_ENABLED=0 GOOS=linux go build -a \
-                                      -ldflags '-s -w -extldflags -static' \
-                                      -o /opt/octavia-tempest-plugin/test_server.bin \
-                                      test_server.go
-
-
-FROM base
-
-COPY --link --from=gobuild --chmod=0755 /opt/octavia-tempest-plugin/test_server.bin /opt/octavia-tempest-plugin/test_server.bin
 
 USER dragon
 WORKDIR /home/dragon

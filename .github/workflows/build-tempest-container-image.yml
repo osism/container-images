@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - v24.04.1  # renovate: datasource=docker depName=b4bz/tempest
+          - latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
