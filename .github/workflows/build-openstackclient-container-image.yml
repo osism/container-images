@@ -26,6 +26,7 @@ jobs:
           - antelope
           - bobcat
           - caracal
+          - dalmatian
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
