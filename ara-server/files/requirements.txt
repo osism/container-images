@@ -1,4 +1,4 @@
-PyMySQL==1.1.0
+PyMySQL==1.1.1
 PyYAML==6.0.1
 eventlet==0.36.1
 gevent==24.2.1
