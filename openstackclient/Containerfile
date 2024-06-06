@@ -36,6 +36,7 @@ RUN apk update --no-cache \
     && echo "PyYAML>6.0.0" >> /packages.txt \
     && pip3 --no-cache-dir install --upgrade 'pip==24.0' \
     && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
+    && pip3 --no-cache-dir install 'keystoneauth-websso==0.1.1' \
     && rm -rf \
       /packages.txt \
       /requirements \
