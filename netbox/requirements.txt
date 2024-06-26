@@ -1,4 +1,4 @@
-netbox-bgp==0.9.0
+netbox-bgp==0.13.2
 netbox-dns==0.17.0
 netbox-initializers==3.4.0
 netbox-secretstore==1.4.1
