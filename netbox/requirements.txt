@@ -1,3 +1,3 @@
-netbox-bgp==0.12.1
+netbox-bgp==0.13.2
 netbox-initializers==3.7.2
 nextbox-ui-plugin==0.14.0
