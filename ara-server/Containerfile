@@ -13,7 +13,7 @@ RUN apt-get update \
       libyaml-dev \
       pkg-config \
     && mkdir /wheels \
-    && python3 -m pip install --no-cache-dir -U 'pip==24.1.1' \
+    && python3 -m pip install --no-cache-dir -U 'pip==24.1.2' \
     && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels --pre -r /requirements.txt \
     && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels "ara[server]"
 
@@ -31,7 +31,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       curl \
       libmariadb3 \
-    && python3 -m pip install --no-cache-dir -U 'pip==24.1.1' \
+    && python3 -m pip install --no-cache-dir -U 'pip==24.1.2' \
     && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels --pre -r /requirements.txt \
     && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels "ara[server]" \
     && useradd ara-server \
