@@ -10,6 +10,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # hadolint ignore=DL3003,SC2035
 RUN apk add --no-cache \
+      abseil-cpp-dev\ 
       boost-dev \
       ca-certificates \
       curl \
@@ -53,6 +54,8 @@ RUN apk add --no-cache \
 FROM alpine:3
 
 RUN apk --no-cache add \
+      abseil-cpp-flags-internal \
+      abseil-cpp-flags-marshalling \
       ca-certificates \
       curl \
       less \
