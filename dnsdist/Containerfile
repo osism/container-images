@@ -68,7 +68,7 @@ RUN apk --no-cache add \
       re2 && \
     rm -rf /var/cache/apk/*
 
-ENV PAGER less
+ENV PAGER=less
 
 RUN addgroup -S dnsdist && \
     adduser -S -D -G dnsdist dnsdist
