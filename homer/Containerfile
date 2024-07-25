@@ -1,5 +1,5 @@
 # build stage
-FROM node:lts-alpine as build-stage
+FROM node:lts-alpine AS build-stage
 ARG VERSION=v24.02.1  # renovate: datasource=github-releases depName=bastienwirtz/homer
 
 WORKDIR /app
