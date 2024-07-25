@@ -1,5 +1,0 @@
----
-features:
-  - |
-    After the release of Python 3.12, the new base image is now used for all
-    container images based on Python.
