@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Use `latest-quincy` tag to be able to provide newer ceph-daemon
-    container images.
