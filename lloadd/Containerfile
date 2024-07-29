@@ -1,6 +1,6 @@
 FROM debian:bookworm AS builder
 
-ARG VERSION=2.6.7
+ARG VERSION=2.6.8
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
