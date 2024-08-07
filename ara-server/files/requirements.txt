@@ -1,5 +1,5 @@
 PyMySQL==1.1.1
-PyYAML==6.0.1
+PyYAML==6.0.2
 eventlet==0.36.1
 gevent==24.2.1
 gunicorn==22.0.0
