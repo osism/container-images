@@ -6,5 +6,5 @@ Jinja2==3.1.4
 netbox-bgp==0.13.2
 netbox-initializers==4.0.0
 nextbox-ui-plugin==0.15.0
-netbox-secrets==1.9.1
+netbox-secrets==1.10.2
 netbox-config-diff==2.6.0
