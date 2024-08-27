@@ -4,7 +4,8 @@ PyYAML==6.0.2
 Jinja2==3.1.4
 # Netbox plugins
 netbox-bgp==0.13.2
-netbox-initializers==4.0.0
-nextbox-ui-plugin==0.15.0
-netbox-secrets==2.0.3
 netbox-config-diff==2.6.0
+netbox-initializers==4.0.0
+netbox-secrets==2.0.3
+netbox-topology-views==4.0.1
+nextbox-ui-plugin==0.15.0
