@@ -23,7 +23,6 @@ jobs:
     strategy:
       matrix:
         version:
-          - latest-pacific
           - latest-quincy
           - latest-reef
     steps:
