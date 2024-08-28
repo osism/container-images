@@ -11,6 +11,8 @@ RUN groupmod -g 64045 ceph
 RUN find / -path /proc -prune -o -group 167 -exec chgrp -h ceph {} \;
 RUN find / -path /proc -prune -o -user 167 -exec chown -h ceph {} \;
 
+RUN dnf update
+
 LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
       "org.opencontainers.image.source"="https://github.com/osism/container-images" \

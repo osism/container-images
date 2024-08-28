@@ -38,6 +38,16 @@ if [[ $IMAGE == "cephclient" ]]; then
       --label "org.opencontainers.image.revision=$REVISION" \
       --label "org.opencontainers.image.version=$VERSION" \
       $BUILD_OPTS .
+elif [[ $IMAGE == "ceph-daemon" ]]; then
+    docker buildx build \
+      --load \
+      --network=host \
+      --build-arg "VERSION=$VERSION" \
+      --tag "$REPOSITORY:$REVISION" \
+      --label "org.opencontainers.image.created=$CREATED" \
+      --label "org.opencontainers.image.revision=$REVISION" \
+      --label "org.opencontainers.image.version=$VERSION" \
+      $BUILD_OPTS .
 else
     docker buildx build \
       --load \
