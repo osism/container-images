@@ -10,7 +10,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # hadolint ignore=DL3003,SC2035
 RUN apk add --no-cache \
-      abseil-cpp-dev\ 
+      abseil-cpp-dev\
       boost-dev \
       ca-certificates \
       curl \
