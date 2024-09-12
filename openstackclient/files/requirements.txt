@@ -29,4 +29,3 @@ python-troveclient
 python-vitrageclient
 python-watcherclient
 python-zunclient
-setuptools

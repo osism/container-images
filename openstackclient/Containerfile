@@ -36,6 +36,7 @@ RUN apk update --no-cache \
     && pip3 --no-cache-dir install --upgrade 'pip==24.2' \
     && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
     && pip3 --no-cache-dir install 'keystoneauth-websso==0.1.1' \
+    && pip3 --no-cache-dir install setuptools \
     && rm -rf \
       /packages.txt \
       /requirements \
