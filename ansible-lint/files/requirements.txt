@@ -1,0 +1,2 @@
+ansible-lint==24.9.2
+HiYaPyCo==0.6.1

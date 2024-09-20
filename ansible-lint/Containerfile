@@ -1,0 +1,31 @@
+FROM python:3.12-slim AS builder
+
+COPY files/requirements.txt /requirements.txt
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      build-essential \
+      gcc \
+    && mkdir /wheels \
+    && python3 -m pip install --no-cache-dir -U 'pip==24.2' \
+    && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels --pre -r /requirements.txt
+
+FROM python:3.12-slim
+
+COPY --from=builder /wheels /wheels
+COPY files/* /
+
+RUN python3 -m pip install --no-cache-dir -U 'pip==24.2' \
+    && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels --pre -r /requirements.txt \
+    && ansible-galaxy collection install -r /requirements.yml \
+    && mkdir -p /zuul \
+    && rm -rf /wheels /requirements.txt
+
+VOLUME ["/zuul"]
+ENTRYPOINT ["/run.sh"]
+
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://quay.io/organization/osism" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
