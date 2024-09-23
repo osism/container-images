@@ -10,5 +10,5 @@ mkdir -p /zuul/.ansible-lint-rules
 cp /osism_* /zuul/.ansible-lint-rules
 
 pushd /zuul
-python3 -m ansiblelint --nocolor -R
+python3 -m ansiblelint --nocolor -R --offline
 popd
