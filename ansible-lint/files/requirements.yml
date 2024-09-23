@@ -4,4 +4,9 @@ collections:
   - name: community.docker
   - name: community.general
   - name: kubernetes.core
+  - name: netbox.netbox
   - name: openstack.cloud
+  - name: osism.commons
+  - name: osism.playbooks
+  - name: osism.services
+  - name: osism.validations
