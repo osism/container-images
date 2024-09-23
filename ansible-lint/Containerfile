@@ -19,7 +19,7 @@ RUN python3 -m pip install --no-cache-dir -U 'pip==24.2' \
     && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels --pre -r /requirements.txt \
     && ansible-galaxy collection install -r /requirements.yml \
     && mkdir -p /zuul \
-    && rm -rf /wheels /requirements.txt
+    && rm -rf /wheels /requirements.txt /requirements.yml
 
 VOLUME ["/zuul"]
 ENTRYPOINT ["/run.sh"]
