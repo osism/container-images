@@ -15,11 +15,25 @@ FROM python:3.12-slim
 COPY --from=builder /wheels /wheels
 COPY files/* /
 
-RUN python3 -m pip install --no-cache-dir -U 'pip==24.2' \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      git \
+    && python3 -m pip install --no-cache-dir -U 'pip==24.2' \
     && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels --pre -r /requirements.txt \
     && ansible-galaxy collection install -r /requirements.yml \
+    && apt-get remove -y \
+      git \
+    && apt-get autoremove -y \
     && mkdir -p /zuul \
-    && rm -rf /wheels /requirements.txt /requirements.yml
+    && rm -rf \
+      /wheels \
+      /requirements.txt \
+      /requirements.yml \
+      /var/lib/apt/lists/* \
+      /var/tmp/* \
+    && pip install --no-cache-dir pyclean==3.0.0 \
+    && pyclean /usr \
+    && pip uninstall -y pyclean
 
 VOLUME ["/zuul"]
 ENTRYPOINT ["/run.sh"]

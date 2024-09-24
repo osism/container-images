@@ -1,4 +1,12 @@
 ---
+roles:
+  - name: geerlingguy.dotfiles
+    type: git
+    src: git+https://github.com/geerlingguy/ansible-role-dotfiles
+  - name: hardening
+    type: git
+    src: git+https://github.com/openstack/ansible-hardening
+
 collections:
   - name: ansible.posix
   - name: community.docker
@@ -10,3 +18,4 @@ collections:
   - name: osism.playbooks
   - name: osism.services
   - name: osism.validations
+  - name: debops.debops
