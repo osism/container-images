@@ -1,2 +1,3 @@
-ansible-lint==24.9.2
 HiYaPyCo==0.6.1
+ansible-lint==24.9.2
+jmespath==1.0.1
