@@ -11,11 +11,12 @@ collections:
   - name: ansible.posix
   - name: community.docker
   - name: community.general
+  - name: debops.debops
   - name: kubernetes.core
   - name: netbox.netbox
   - name: openstack.cloud
   - name: osism.commons
+  - name: osism.manager
   - name: osism.playbooks
   - name: osism.services
   - name: osism.validations
-  - name: debops.debops
