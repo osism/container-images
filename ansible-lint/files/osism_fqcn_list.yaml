@@ -153,6 +153,7 @@ community.docker:
   - community.docker.docker_api
   - community.docker.docker_compose
   - community.docker.docker_compose_v2
+  - community.docker.docker_compose_v2_pull
   - community.docker.docker_config
   - community.docker.docker_container
   - community.docker.docker_container_copy_into
