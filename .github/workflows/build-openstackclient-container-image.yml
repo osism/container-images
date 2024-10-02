@@ -27,6 +27,7 @@ jobs:
           - bobcat
           - caracal
           - dalmatian
+          - epoxy
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
