@@ -15,8 +15,14 @@ collections:
   - name: kubernetes.core
   - name: netbox.netbox
   - name: openstack.cloud
-  - name: osism.commons
   - name: osism.manager
   - name: osism.playbooks
-  - name: osism.services
-  - name: osism.validations
+  - name: https://github.com/osism/ansible-collection-commons.git
+    type: git
+    version: main
+  - name: https://github.com/osism/ansible-collection-services.git
+    type: git
+    version: main
+  - name: https://github.com/osism/ansible-collection-validations.git
+    type: git
+    version: main
