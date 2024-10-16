@@ -11,6 +11,7 @@ collections:
   - name: ansible.posix
   - name: community.docker
   - name: community.general
+  - name: containers.podman
   - name: debops.debops
   - name: kubernetes.core
   - name: netbox.netbox
