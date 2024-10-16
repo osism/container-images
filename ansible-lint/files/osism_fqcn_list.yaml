@@ -303,29 +303,29 @@ community.hashi_vault:
   - community.hashi_vault.vault_write
 
 containers.podman:
-  - community.podman.podman_container
-  - community.podman.podman_container_info
-  - community.podman.podman_containers
-  - community.podman.podman_export
-  - community.podman.podman_image
-  - community.podman.podman_image_info
-  - community.podman.podman_import
-  - community.podman.podman_load
-  - community.podman.podman_login
-  - community.podman.podman_login_info
-  - community.podman.podman_logout
-  - community.podman.podman_network
-  - community.podman.podman_network_info
-  - community.podman.podman_play
-  - community.podman.podman_pod
-  - community.podman.podman_pod_info
-  - community.podman.podman_save
-  - community.podman.podman_secret
-  - community.podman.podman_tag
-  - community.podman.podman_volume
-  - community.podman.podman_volume_info
-  - community.podman.buildah
-  - community.podman.podman
+  - containers.podman.podman_container
+  - containers.podman.podman_container_info
+  - containers.podman.podman_containers
+  - containers.podman.podman_export
+  - containers.podman.podman_image
+  - containers.podman.podman_image_info
+  - containers.podman.podman_import
+  - containers.podman.podman_load
+  - containers.podman.podman_login
+  - containers.podman.podman_login_info
+  - containers.podman.podman_logout
+  - containers.podman.podman_network
+  - containers.podman.podman_network_info
+  - containers.podman.podman_play
+  - containers.podman.podman_pod
+  - containers.podman.podman_pod_info
+  - containers.podman.podman_save
+  - containers.podman.podman_secret
+  - containers.podman.podman_tag
+  - containers.podman.podman_volume
+  - containers.podman.podman_volume_info
+  - containers.podman.buildah
+  - containers.podman.podman
 
 netbox.netbox:
   - netbox.netbox.netbox_aggregate
