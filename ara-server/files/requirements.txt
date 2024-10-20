@@ -4,5 +4,5 @@ eventlet==0.37.0
 gevent==24.10.3
 gunicorn==23.0.0
 httptools==0.6.4
-mysqlclient==2.2.4
+mysqlclient==2.2.5
 uvloop==0.21.0
