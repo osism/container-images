@@ -23,7 +23,6 @@ jobs:
     strategy:
       matrix:
         version:
-          - antelope
           - bobcat
           - caracal
           - dalmatian
