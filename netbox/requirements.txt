@@ -9,4 +9,4 @@ netbox-data-flows==1.0.5
 netbox-initializers==4.1.0
 netbox-secrets==2.1.0
 netbox-topology-views==4.1.0
-nextbox-ui-plugin==0.15.0
+nextbox-ui-plugin==1.0.0
