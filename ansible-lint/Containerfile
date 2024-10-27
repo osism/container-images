@@ -7,7 +7,7 @@ RUN apt-get update \
       build-essential \
       gcc \
     && mkdir /wheels \
-    && python3 -m pip install --no-cache-dir -U 'pip==24.2' \
+    && python3 -m pip install --no-cache-dir -U 'pip==24.3.1' \
     && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels --pre -r /requirements.txt
 
 FROM python:3.13-slim
@@ -18,7 +18,7 @@ COPY files/* /
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       git \
-    && python3 -m pip install --no-cache-dir -U 'pip==24.2' \
+    && python3 -m pip install --no-cache-dir -U 'pip==24.3.1' \
     && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels --pre -r /requirements.txt \
     && ansible-galaxy collection install -r /requirements.yml \
     && ansible-galaxy role install -r /requirements.yml \
