@@ -1,12 +1,4 @@
 tempest
 barbican-tempest-plugin
-cinder-tempest-plugin
 designate-tempest-plugin
-glance-tempest-plugin
-ironic-tempest-plugin
-keystone-tempest-plugin
-magnum-tempest-plugin
-manila-tempest-plugin
-neutron-tempest-plugin
 octavia-tempest-plugin
-telemetry-tempest-plugin
