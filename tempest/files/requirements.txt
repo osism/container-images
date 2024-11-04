@@ -1,4 +1,4 @@
-tempest==40.0.0
+tempest==41.0.0
 barbican-tempest-plugin
 designate-tempest-plugin
 octavia-tempest-plugin
