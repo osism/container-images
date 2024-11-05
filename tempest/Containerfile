@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bookworm AS pre-gobuild
+FROM python:3.13-slim-bookworm AS pre-gobuild
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y build-essential
@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
   -o /opt/octavia-tempest-plugin/test_server.bin \
   test_server.go
 
-FROM python:3.12-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 ARG VERSION=latest
 
@@ -48,8 +48,7 @@ pip3 install --no-cache-dir -r /requirements.txt
 groupadd -g "$GROUP_ID" dragon
 useradd -l -g dragon -u "$USER_ID" -m -d /home/dragon dragon
 
-
-# cleanpu
+# cleanup
 apt-get remove -y build-essential
 apt-get autoremove -y
 apt-get clean
