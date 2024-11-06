@@ -6,7 +6,8 @@ COPY files/launch.sh /opt/netbox/launch.sh
 
 RUN /opt/netbox/venv/bin/python3 -m pip --no-cache-dir install -U 'pip==24.3.1' \
     && /opt/netbox/venv/bin/python3 -m pip --no-cache-dir install -r /requirements.txt \
-    && chmod +x /opt/netbox/launch.sh
+    && chmod +x /opt/netbox/launch.sh \
+    && python3 /opt/netbox/netbox/manage.py collectstatic --no-input
 
 CMD [ "/opt/netbox/docker-entrypoint.sh", "/opt/netbox/launch.sh" ]
 
