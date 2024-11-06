@@ -10,4 +10,7 @@ if [[ $INITIALIZERS_ENABLED == "True" ]]; then
     python3 /opt/netbox/netbox/manage.py load_initializer_data --path /opt/netbox/initializers
 fi
 
+# Collect static files.
+python3 /opt/netbox/netbox/manage.py collectstatic --no-input
+
 exec /opt/netbox/launch-netbox.sh
