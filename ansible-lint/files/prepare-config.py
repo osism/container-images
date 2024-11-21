@@ -9,4 +9,6 @@ conf = hiyapyco.load(
 )
 
 with open("/zuul/.ansible-lint", "w+") as fp:
-    fp.write(hiyapyco.dump(conf, default_flow_style=True))
+    fp.write(hiyapyco.dump(conf,
+                           default_flow_style=True,
+                           explicit_start=True))
