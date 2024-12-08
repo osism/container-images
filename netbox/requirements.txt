@@ -8,5 +8,5 @@ netbox-bgp==0.14.0
 netbox-config-diff==2.8.0
 netbox-data-flows==1.0.6
 netbox-initializers==4.1.0
-netbox-secrets==2.1.0
+netbox-secrets==2.1.2
 netbox-topology-views==4.1.0
