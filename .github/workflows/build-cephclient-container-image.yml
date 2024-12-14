@@ -25,6 +25,7 @@ jobs:
         version:
           - quincy
           - reef
+          - squid
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
