@@ -66,6 +66,12 @@ if [[ $IMAGE == "openstackclient" ]]; then
     elif [[ $VERSION == "caracal" ]]; then
         docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.1"
         docker push "$REPOSITORY:2024.1"
+    elif [[ $VERSION == "dalmatian" ]]; then
+        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.2"
+        docker push "$REPOSITORY:2024.2"
+    elif [[ $VERSION == "epoxy" ]]; then
+        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2025.1"
+        docker push "$REPOSITORY:2025.1"
     fi
 fi
 
