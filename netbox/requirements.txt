@@ -1,7 +1,7 @@
 # Misc
 netmiko==4.5.0
 PyYAML==6.0.2
-Jinja2==3.1.4
+Jinja2==3.1.5
 
 # Netbox plugins
 netbox-bgp==0.14.0
