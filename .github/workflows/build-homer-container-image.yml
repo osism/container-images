@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - v24.12.1  # renovate: datasource=github-releases depName=bastienwirtz/homer
+          - 140992663  # renovate: datasource=github-releases depName=bastienwirtz/homer
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
