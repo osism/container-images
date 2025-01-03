@@ -56,6 +56,7 @@ FROM alpine:3
 RUN apk --no-cache add \
       abseil-cpp-flags-internal \
       abseil-cpp-flags-marshalling \
+      abseil-cpp-vlog-config-internal \
       ca-certificates \
       curl \
       less \
