@@ -1,20 +1,27 @@
+# based on https://github.com/bastienwirtz/homer/blob/main/Dockerfile
+
 # build stage
-FROM node:lts-alpine AS build-stage
-ARG VERSION=v24.02.1  # renovate: datasource=github-releases depName=bastienwirtz/homer
+FROM node:23-alpine AS build-stage
+ARG VERSION=v24.12.1  # renovate: datasource=github-releases depName=bastienwirtz/homer
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 
 WORKDIR /app
 
 ADD https://github.com/bastienwirtz/homer/archive/refs/tags/${VERSION}.tar.gz /app
+
 RUN tar xvzf ${VERSION}.tar.gz
 RUN mv /app/homer-* /app/homer  # ugly, but allows us to ditch the hussle with docker tags containing "v" or not.
 
 WORKDIR /app/homer
 
-RUN yarn install --frozen-lockfile \
-    && yarn build
+RUN corepack enable && corepack use pnpm@9
+RUN pnpm install --frozen-lockfile
+RUN pnpm build
 
 # production stage
-FROM alpine:3.20
+FROM alpine:3.21
 
 ENV USER=darkhttpd
 ENV GROUP=darkhttpd
