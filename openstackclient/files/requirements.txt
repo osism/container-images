@@ -1,10 +1,5 @@
 gnocchiclient
-keystoneauth-oidc
-keystoneauth-websso
-neutron-dynamic-routing
 osc-placement
-osprofiler
-prometheus-client
 python-barbicanclient
 python-ceilometerclient
 python-cinderclient
@@ -30,4 +25,3 @@ python-troveclient
 python-vitrageclient
 python-watcherclient
 python-zunclient
-setuptools
