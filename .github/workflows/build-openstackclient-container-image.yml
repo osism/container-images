@@ -23,7 +23,6 @@ jobs:
     strategy:
       matrix:
         version:
-          - bobcat
           - caracal
           - dalmatian
           - epoxy
