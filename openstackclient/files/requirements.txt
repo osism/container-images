@@ -1,5 +1,6 @@
 gnocchiclient
 keystoneauth-oidc
+keystoneauth-websso
 neutron-dynamic-routing
 osc-placement
 osprofiler
@@ -29,3 +30,4 @@ python-troveclient
 python-vitrageclient
 python-watcherclient
 python-zunclient
+setuptools
