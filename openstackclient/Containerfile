@@ -44,10 +44,12 @@ RUN apk update --no-cache \
     && uv pip install \
       -r /packages.txt \
       -c /requirements/upper-constraints.txt \
+      --no-cache \
       --system \
     && uv pip install \
       -r /requirements.extra.txt \
       -c /requirements/upper-constraints.txt \
+      --no-cache \
       --system \
     && rm -rf \
       /packages.txt \
