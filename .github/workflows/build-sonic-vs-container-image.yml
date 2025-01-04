@@ -8,12 +8,14 @@ name: Build sonic-vs container image
   push:
     paths:
       - .github/workflows/build-sonic-vs-container-image.yml
+      - scrips/build.sh
       - sonic-vs/**
     branches:
       - main
   pull_request:
     paths:
       - .github/workflows/build-sonic-vs-container-image.yml
+      - scrips/build.sh
       - sonic-vs/**
 
 jobs:
@@ -23,7 +25,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - latest
+          - 202411
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
