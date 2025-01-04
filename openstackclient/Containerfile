@@ -56,7 +56,6 @@ RUN apk update --no-cache \
       /requirements.extra.txt \
     && apk del .build-deps \
     && openstack complete > /osc.bash_completion \
-    && pyclean /usr \
     && addgroup -g $GROUP_ID dragon \
     && adduser -D -u $USER_ID -G dragon dragon \
     && mkdir /configuration \
