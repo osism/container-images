@@ -35,13 +35,9 @@ RUN apk update --no-cache \
     && mkdir /requirements \
     && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
     && rm -rf /requirements.tar.gz \
-    && while read -r package; do \
-         grep -q "$package" /requirements/upper-constraints.txt && \
-         echo "$package" >> /packages.txt || true; \
-       done < /requirements.txt \
     && pip3 --no-cache-dir install uv \
     && uv pip install \
-      -r /packages.txt \
+      -r /requirements.txt \
       -c /requirements/upper-constraints.txt \
       --system \
     && rm -rf \
