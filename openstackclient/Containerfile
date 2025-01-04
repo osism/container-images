@@ -39,9 +39,11 @@ RUN apk update --no-cache \
          grep -q "$package" /requirements/upper-constraints.txt && \
          echo "$package" >> /packages.txt || true; \
        done < /requirements.txt \
-    && sed -i "/^PyYAML===.*$/d" /requirements/upper-constraints.txt \
-    && echo "PyYAML>6.0.0" >> /packages.txt \
-    && pip3 --no-cache-dir install -c /requirements/upper-constraints.txt -r /packages.txt \
+    && pip3 --no-cache-dir install uv \
+    && uv pip install \
+      -r /packages.txt \
+      -c /requirements/upper-constraints.txt \
+      --system \
     && rm -rf \
       /packages.txt \
       /requirements \
