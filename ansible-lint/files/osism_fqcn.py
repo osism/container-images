@@ -15,7 +15,10 @@ class OsismFQCNRule(AnsibleLintRule):
     id = "osism-fqcn"
     severity = "MEDIUM"
     description = "Check whether the long version is used in the playbook"
-    tags = ["formatting", "experimental"]
+    tags = ["formatting", "osism"]
+
+    # WARNING  Rule ... has an invalid version_changed field '', is should be a 'X.Y.Z' format value.
+    version_changed = "0.0.1"
 
     def matchtask(
         self, task: Dict[str, Any], file: Optional[Lintable] = None
