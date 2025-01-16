@@ -13,8 +13,11 @@ class OsismAttributeOrderRule(AnsibleLintRule):
     id = "osism-attribute-order"
     shortdesc = __doc__
     severity = "LOW"
-    tags = ["formatting", "experimental"]
+    tags = ["formatting", "osism"]
     needs_raw_task = True
+
+    # WARNING  Rule ... has an invalid version_changed field '', is should be a 'X.Y.Z' format value.
+    version_changed = "0.0.1"
 
     def matchtask(
         self, task: Dict[str, Any], file: Optional[Lintable] = None
