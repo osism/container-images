@@ -2,11 +2,10 @@ ARG VERSION=v4.1.10  # renovate: datasource=docker depName=quay.io/netboxcommuni
 FROM quay.io/netboxcommunity/netbox:${VERSION}
 
 COPY requirements.txt /requirements.txt
-COPY files/launch.sh /opt/netbox/launch.sh
+COPY --chmod=0755 files/launch.sh /opt/netbox/launch.sh
 
 RUN /opt/netbox/venv/bin/python3 -m pip --no-cache-dir install -U 'pip==24.3.1' \
     && /opt/netbox/venv/bin/python3 -m pip --no-cache-dir install -r /requirements.txt \
-    && chmod +x /opt/netbox/launch.sh \
     && chown -R unit: /opt/netbox/netbox/static
 
 CMD [ "/opt/netbox/docker-entrypoint.sh", "/opt/netbox/launch.sh" ]
