@@ -1,0 +1,12 @@
+FROM alpine:3.21
+
+RUN apk add --no-cache dnsmasq
+
+ENTRYPOINT ["/usr/sbin/dnsmasq"]
+CMD ["--help"]
+
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://quay.io/organization/osism" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"

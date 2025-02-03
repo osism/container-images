@@ -32,6 +32,17 @@ if [[ $IMAGE == "cgit" ]]; then
     fi
 fi
 
+# push e.g. osism/dnsmasq:2.90
+if [[ $IMAGE == "dnsmasq" ]]; then
+    version=$(docker run --rm "$REPOSITORY:$VERSION" --version | head -n 1 | awk '{ print $3 }')
+    if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
+        echo "The image ${REPOSITORY}:${version} already exists."
+    else
+        docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
+        docker push "$REPOSITORY:$version"
+    fi
+fi
+
 # push e.g. osism/ara-server:1.5.8
 if [[ $IMAGE == "ara-server" ]]; then
     version=$(docker run --rm "$REPOSITORY:$VERSION" ara --version | awk '{ print $2 }')
