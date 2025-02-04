@@ -68,22 +68,7 @@ if [[ $IMAGE == "openstackclient" ]]; then
         docker push "$REPOSITORY:$version"
     fi
 
-    if [[ $VERSION == "antelope" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.1"
-        docker push "$REPOSITORY:2023.1"
-    elif [[ $VERSION == "bobcat" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.2"
-        docker push "$REPOSITORY:2023.2"
-    elif [[ $VERSION == "caracal" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.1"
-        docker push "$REPOSITORY:2024.1"
-    elif [[ $VERSION == "dalmatian" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.2"
-        docker push "$REPOSITORY:2024.2"
-    elif [[ $VERSION == "epoxy" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2025.1"
-        docker push "$REPOSITORY:2025.1"
-    fi
+    docker push "$REPOSITORY:$VERSION"
 fi
 
 # push e.g. osism/ceph-daemon:12.2.13 + osism/ceph-daemon:pacific

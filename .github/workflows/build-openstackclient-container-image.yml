@@ -23,9 +23,9 @@ jobs:
     strategy:
       matrix:
         version:
-          - caracal
-          - dalmatian
-          - epoxy
+          - 2024.1
+          - 2024.2
+          - 2025.1
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

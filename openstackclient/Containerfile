@@ -1,7 +1,7 @@
 ARG PYTHON_VERSION=3.13
 FROM python:${PYTHON_VERSION}-alpine
 
-ARG VERSION=caracal
+ARG VERSION=2024.1
 
 ARG USER_ID=45000
 ARG GROUP_ID=45000
@@ -28,11 +28,8 @@ RUN apk update --no-cache \
       openssl-dev \
       python3-dev \
       rust \
-    && if [ $VERSION = "epoxy" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; fi \
-    && if [ $VERSION = "dalmatian" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-2024.2.tar.gz; fi \
-    && if [ $VERSION = "caracal" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-2024.1.tar.gz; fi \
-    && if [ $VERSION = "bobcat" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-2023.2.tar.gz; fi \
-    && if [ $VERSION = "antelope" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-2023.1.tar.gz; fi \
+    && if [ $VERSION = 2025.1 ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; \
+       else wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
     && mkdir /requirements \
     && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
     && rm -rf /requirements.tar.gz \
