@@ -44,6 +44,8 @@ jobs:
         run: |
           scripts/push.sh
         env:
+          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+          DTRACK_SERVER: ${{ secrets.DTRACK_SERVER }}
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
           IMAGE: dnsmasq-osism
           REPOSITORY: osism/dnsmasq-osism
