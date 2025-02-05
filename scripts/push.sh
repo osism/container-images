@@ -15,11 +15,26 @@ if [[ -n $DOCKER_REGISTRY ]]; then
     REPOSITORY="$DOCKER_REGISTRY/$REPOSITORY"
 fi
 
+pip3 install dtrack-auditor
+curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin
+
+generate_sbom() {
+    local repository="$1"
+    local version="$2"
+
+    /usr/local/bin/syft scan "$repository:$version" -o cyclonedx-json > sbom.json
+    dtrackauditor \
+      -p $(basename $repository) \
+      -v "$version" \
+      -f sbom.json \
+      -a
+
 docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 
 if [[ $IMAGE != "netbox" ]]; then
     # push e.g. osism/cephclient:pacific
     docker push "$REPOSITORY:$VERSION"
+    generate_sbom $REPOSITORY $VERSION
 fi
 
 if [[ $IMAGE == "cgit" ]]; then
@@ -29,6 +44,7 @@ if [[ $IMAGE == "cgit" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
+        generate_sbom $REPOSITORY $version
     fi
 fi
 
@@ -40,6 +56,7 @@ if [[ $IMAGE == "dnsmasq-osism" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
+        generate_sbom $REPOSITORY $version
     fi
 fi
 
@@ -51,11 +68,13 @@ if [[ $IMAGE == "ara-server" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
+        generate_sbom $REPOSITORY $version
     fi
 
     # always push a latest osism/ara-server image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
+    generate_sbom $REPOSITORY latest
 fi
 
 # push e.g. osism/openstackclient:5.5.0
@@ -66,23 +85,29 @@ if [[ $IMAGE == "openstackclient" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
+        generate_sbom $REPOSITORY $version
     fi
 
     if [[ $VERSION == "antelope" ]]; then
         docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.1"
         docker push "$REPOSITORY:2023.1"
+        generate_sbom $REPOSITORY 2023.1
     elif [[ $VERSION == "bobcat" ]]; then
         docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.2"
         docker push "$REPOSITORY:2023.2"
+        generate_sbom $REPOSITORY 2023.2
     elif [[ $VERSION == "caracal" ]]; then
         docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.1"
         docker push "$REPOSITORY:2024.1"
+        generate_sbom $REPOSITORY 2024.1
     elif [[ $VERSION == "dalmatian" ]]; then
         docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.2"
         docker push "$REPOSITORY:2024.2"
+        generate_sbom $REPOSITORY 2024.2
     elif [[ $VERSION == "epoxy" ]]; then
         docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2025.1"
         docker push "$REPOSITORY:2025.1"
+        generate_sbom $REPOSITORY 2025.1
     fi
 fi
 
@@ -96,12 +121,14 @@ if [[ $IMAGE == "ceph-daemon" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
+        generate_sbom $REPOSITORY $version
     fi
 
     # push e.g. osism/ceph-daemon:pacific
     version=$(docker inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "$REPOSITORY:$REVISION" | grep -P "^CEPH_VERSION=" | sed 's/[^=]*=//')
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
     docker push "$REPOSITORY:$version"
+    generate_sbom $REPOSITORY $version
 fi
 
 # push e.g. osism/cephclient:16.2.5
@@ -112,6 +139,7 @@ if [[ $IMAGE == "cephclient" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
+        generate_sbom $REPOSITORY $version
     fi
 fi
 
@@ -122,11 +150,13 @@ if [[ $IMAGE == "netbox" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
         docker push "$REPOSITORY:$VERSION"
+        generate_sbom $REPOSITORY $VERSION
     fi
 
     # always push a latest osism/netbox image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
+    generate_sbom $REPOSITORY latest
 fi
 
 docker rmi "$REPOSITORY:$VERSION"
