@@ -32,8 +32,8 @@ if [[ $IMAGE == "cgit" ]]; then
     fi
 fi
 
-# push e.g. osism/dnsmasq:2.90
-if [[ $IMAGE == "dnsmasq" ]]; then
+# push e.g. osism/dnsmasq-osism:2.90
+if [[ $IMAGE == "dnsmasq-osism" ]]; then
     version=$(docker run --rm "$REPOSITORY:$VERSION" --version | head -n 1 | awk '{ print $3 }')
     if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
         echo "The image ${REPOSITORY}:${version} already exists."

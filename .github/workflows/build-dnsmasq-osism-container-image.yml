@@ -1,22 +1,22 @@
 ---
-name: Build dnsmasq container image
+name: Build dnsmasq-osism container image
 
 "on":
   workflow_dispatch:
   push:
     paths:
-      - .github/workflows/build-dnsmasq-container-image.yml
-      - dnsmasq/**
+      - .github/workflows/build-dnsmasq-osism-container-image.yml
+      - dnsmasq-osism/**
     branches:
       - main
   pull_request:
     paths:
-      - .github/workflows/build-dnsmasq-container-image.yml
-      - dnsmasq/**
+      - .github/workflows/build-dnsmasq-osism-container-image.yml
+      - dnsmasq-osism/**
 
 jobs:
 
-  build-dnsmasq-container-image:
+  build-dnsmasq-osism-container-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -37,16 +37,16 @@ jobs:
         run: scripts/build.sh
         env:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-          IMAGE: dnsmasq
-          REPOSITORY: osism/dnsmasq
+          IMAGE: dnsmasq-osism
+          REPOSITORY: osism/dnsmasq-osism
 
       - name: Push container image
         run: |
           scripts/push.sh
         env:
           DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-          IMAGE: dnsmasq
-          REPOSITORY: osism/dnsmasq
+          IMAGE: dnsmasq-osism
+          REPOSITORY: osism/dnsmasq-osism
         if: |
           github.repository == 'osism/container-images' &&
           github.ref == 'refs/heads/main'
