@@ -28,6 +28,7 @@ generate_sbom() {
       -v "$version" \
       -f sbom.json \
       -a
+}
 
 docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 
