@@ -61,6 +61,18 @@ if [[ $IMAGE == "dnsmasq-osism" ]]; then
     fi
 fi
 
+# push e.g. osism/rsync:3.2.7
+if [[ $IMAGE == "rsync" ]]; then
+    version=$(docker run --rm "$REPOSITORY:$VERSION" --version | head -n 1 | awk '{ print $3 }')
+    if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
+        echo "The image ${REPOSITORY}:${version} already exists."
+    else
+        docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
+        docker push "$REPOSITORY:$version"
+        generate_sbom $REPOSITORY $version
+    fi
+fi
+
 # push e.g. osism/ara-server:1.5.8
 if [[ $IMAGE == "ara-server" ]]; then
     version=$(docker run --rm "$REPOSITORY:$VERSION" ara --version | awk '{ print $2 }')
