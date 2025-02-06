@@ -1,8 +1,22 @@
-FROM alpine:3.21
+ARG ALPINE_VERSION=3.21
+FROM alpine:${ALPINE_VERSION}
 
-RUN apk add --no-cache rsync
+COPY --chmod=0755 entrypoint.sh /entrypoint.sh
 
-ENTRYPOINT ["/usr/bin/rsync"]
+ENV USER_NAME=rsync
+ENV USER_ID=1000
+ENV GROUP_ID=1000
+
+RUN apk update --no-cache \
+    && apk upgrade --no-cache --available \
+    && apk add --no-cache \
+      dumb-init \
+      rsync \
+      shadow \
+    && addgroup -g ${GROUP_ID} ${USER_NAME} \
+    && adduser -u ${USER_ID} -D -G ${USER_NAME} ${USER_NAME}
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
