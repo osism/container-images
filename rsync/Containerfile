@@ -14,9 +14,13 @@ RUN apk update --no-cache \
       rsync \
       shadow \
     && addgroup -g ${GROUP_ID} ${USER_NAME} \
-    && adduser -u ${USER_ID} -D -G ${USER_NAME} ${USER_NAME}
+    && adduser -u ${USER_ID} -D -G ${USER_NAME} ${USER_NAME} \
+    && mkdir /data /export \
+    && chown -R ${USER_NAME}:${USER_NAME} /data /export
 
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/bin/rsync", "-avz", "/data", "/export"]
+VOLUME ["/export"]
 
 LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
