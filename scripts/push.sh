@@ -101,27 +101,9 @@ if [[ $IMAGE == "openstackclient" ]]; then
         generate_sbom $REPOSITORY $version
     fi
 
-    if [[ $VERSION == "antelope" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.1"
-        docker push "$REPOSITORY:2023.1"
-        generate_sbom $REPOSITORY 2023.1
-    elif [[ $VERSION == "bobcat" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2023.2"
-        docker push "$REPOSITORY:2023.2"
-        generate_sbom $REPOSITORY 2023.2
-    elif [[ $VERSION == "caracal" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.1"
-        docker push "$REPOSITORY:2024.1"
-        generate_sbom $REPOSITORY 2024.1
-    elif [[ $VERSION == "dalmatian" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2024.2"
-        docker push "$REPOSITORY:2024.2"
-        generate_sbom $REPOSITORY 2024.2
-    elif [[ $VERSION == "epoxy" ]]; then
-        docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:2025.1"
-        docker push "$REPOSITORY:2025.1"
-        generate_sbom $REPOSITORY 2025.1
-    fi
+    docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:$VERSION"
+    docker push "$REPOSITORY:$VERSION"
+    generate_sbom $REPOSITORY $VERSION
 fi
 
 # push e.g. osism/ceph-daemon:12.2.13 + osism/ceph-daemon:pacific
