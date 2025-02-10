@@ -1,0 +1,68 @@
+FROM python:3.13-slim-bookworm
+
+ARG REPO=https://opendev.org/openstack/tenks.git
+ARG VERSION=latest
+
+ARG USER_ID=45000
+ARG GROUP_ID=45000
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN <<EOF
+set -e
+set -x
+
+# install required packages
+apt-get update
+apt-get install --no-install-recommends -y \
+    openssh-client \
+    git
+if [[ "$VERSION" == "latest" ]]; then
+    BRANCH="master"
+else
+    BRANCH="$VERSION"
+fi
+git clone --depth 1 --branch "$BRANCH" "$REPO" /home/dragon/tenks-venv
+python3 -m venv /home/dragon/tenks-venv
+source /home/dragon/tenks-venv/bin/activate
+python3 -m pip install --no-cache-dir --upgrade \
+    'pip==24.3.1' \
+    'setuptools'
+cd /home/dragon/tenks-venv
+pip3 install --no-cache-dir .
+ansible-galaxy install --role-file=/home/dragon/tenks-venv/requirements.yml \
+                       --roles-path=/home/dragon/tenks-venv/ansible/roles/
+
+# add user
+groupadd -g "$GROUP_ID" dragon
+useradd -l -g dragon -u "$USER_ID" -m -d /home/dragon dragon
+chown -R dragon:dragon /home/dragon
+
+# cleanup
+apt-get autoremove -y
+apt-get clean
+rm -rf \
+  /var/lib/apt/lists/* \
+  /var/tmp/* \
+  /requirements.txt
+
+pip3 install --no-cache-dir pyclean==3.0.0
+pyclean /usr
+pip3 uninstall -y pyclean
+EOF
+
+USER dragon
+WORKDIR /home/dragon/tenks-venv
+ENV PATH="/home/dragon/tenks-venv/bin:$PATH"
+ENTRYPOINT ["/home/dragon/tenks-venv/bin/ansible-playbook", "/home/dragon/tenks-venv/ansible/deploy.yml", "--inventory", "/home/dragon/tenks-venv/ansible/inventory/groups"]
+CMD []
+
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
+      "org.opencontainers.image.licenses"="ASL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://quay.io/organization/osism" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
