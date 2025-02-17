@@ -16,7 +16,7 @@
   ],
   "packageRules": [
     {
-      "matchPaths": ["netbox/requirements.txt"],
+      "matchPaths": ["netbox/requirements.txt", "netbox/Containerfile", ".github/workflows/build-netbox-container-image.yml"],
       "groupName": "netbox"
     }
   ]
