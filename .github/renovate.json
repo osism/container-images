@@ -13,5 +13,11 @@
         "- (?<currentValue>.*?)  # renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n"
      ]
     }
+  ],
+  "packageRules": [
+    {
+      "matchPaths": ["netbox/requirements.txt"],
+      "groupName": "netbox"
+    }
   ]
 }
