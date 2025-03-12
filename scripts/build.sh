@@ -33,6 +33,10 @@ if [[ $IMAGE == "sonic-vs" ]]; then
     exit 0
 fi
 
+if [[ $IMAGE == "netbox" ]]; then
+    docker pull quay.io/netboxcommunity/netbox:$VERSION
+fi
+
 if [[ $IMAGE == "cephclient" ]]; then
     if [[ $VERSION == "quincy" ]]; then
         DEBIAN_VERSION=bullseye
