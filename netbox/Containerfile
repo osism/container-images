@@ -4,8 +4,7 @@ FROM quay.io/netboxcommunity/netbox:${VERSION}
 COPY requirements.txt /requirements.txt
 COPY --chmod=0755 files/launch.sh /opt/netbox/launch.sh
 
-RUN /opt/netbox/venv/bin/python3 -m pip --no-cache-dir install -U 'pip==25.0.1' \
-    && /opt/netbox/venv/bin/python3 -m pip --no-cache-dir install -r /requirements.txt \
+RUN /opt/netbox/venv/bin/pip --no-cache-dir install -r /requirements.txt \
     && chown -R unit: /opt/netbox/netbox/static
 
 CMD [ "/opt/netbox/docker-entrypoint.sh", "/opt/netbox/launch.sh" ]
