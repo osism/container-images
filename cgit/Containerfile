@@ -1,5 +1,6 @@
-FROM clearlinux/httpd:latest AS httpd
+# source: https://github.com/clearlinux/dockerfiles/blob/master/cgit/Dockerfile
 
+FROM ghcr.io/clearlinux/httpd:latest AS httpd
 FROM clearlinux:latest AS builder
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -33,7 +34,7 @@ COPY --from=httpd / /os_core_install/
 WORKDIR /
 RUN find os_core_install | sed -e 's/os_core_install/install_root/' | xargs rm -d &> /dev/null || true
 
-FROM clearlinux/httpd:latest
+FROM ghcr.io/clearlinux/httpd:latest
 
 COPY --from=builder /install_root /
 COPY cgitrc /etc/cgitrc
