@@ -6,6 +6,8 @@ ARG VERSION=2025.1
 ARG USER_ID=45000
 ARG GROUP_ID=45000
 
+COPY --from=ghcr.io/astral-sh/uv:0.6.10 /uv /usr/local/bin/uv
+
 COPY files/requirements.txt /requirements.txt
 COPY files/requirements.extra.txt /requirements.extra.txt
 
@@ -36,7 +38,6 @@ RUN apk update --no-cache \
          grep -q "$package" /requirements/upper-constraints.txt && \
          echo "$package" >> /packages.txt || true; \
        done < /requirements.txt \
-    && pip3 --no-cache-dir install uv \
     && uv pip install \
       -r /packages.txt \
       -c /requirements/upper-constraints.txt \
