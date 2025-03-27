@@ -1,4 +1,4 @@
-"""Rule definition for usage of fully qualified collection names for FQCN."""
+# SPDX-License-Identifier: Apache-2.0
 
 import sys
 import yaml
