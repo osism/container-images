@@ -10,4 +10,3 @@ netbox-data-flows==1.1.0
 netbox-initializers==4.2.0
 netbox-plugin-dns==1.2.6
 netbox-secrets==2.2.0
-netbox-topology-views==4.2.1
