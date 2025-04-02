@@ -25,6 +25,7 @@ jobs:
         version:
           - "2024.2"
           - "2025.1"
+          - "2025.2"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
