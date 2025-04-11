@@ -8,5 +8,5 @@ netbox-bgp==0.15.0
 netbox-config-diff==2.9.0
 netbox-data-flows==1.1.0
 netbox-initializers==4.2.0
-netbox-plugin-dns==1.2.6
+netbox-plugin-dns==1.2.7
 netbox-secrets==2.2.0
