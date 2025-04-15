@@ -1,40 +1,17 @@
-FROM python:3.13-slim AS builder
+ARG PYTHON_VERSION=3.13
+FROM python:${PYTHON_VERSION}-alpine
 
-COPY files/requirements.txt /requirements.txt
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-      build-essential \
-      gcc \
-    && mkdir /wheels \
-    && python3 -m pip install --no-cache-dir -U 'pip==25.0.1' \
-    && python3 -m pip wheel --no-cache-dir --wheel-dir=/wheels --pre -r /requirements.txt
-
-FROM python:3.13-slim
-
-COPY --from=builder /wheels /wheels
+COPY --from=ghcr.io/astral-sh/uv:0.6.14 /uv /usr/local/bin/uv
 COPY files/* /
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+RUN apk add --no-cache --virtual .build-deps \
+      build-base \
       git \
-    && python3 -m pip install --no-cache-dir -U 'pip==25.0.1' \
-    && python3 -m pip install --no-cache-dir --no-index --find-links=/wheels --pre -r /requirements.txt \
+    && uv pip install --no-cache --system -r /requirements.txt \
     && ansible-galaxy collection install -r /requirements.yml \
     && ansible-galaxy role install -r /requirements.yml \
-    && apt-get remove -y \
-      git \
-    && apt-get autoremove -y \
     && mkdir -p /zuul \
-    && rm -rf \
-      /wheels \
-      /requirements.txt \
-      /requirements.yml \
-      /var/lib/apt/lists/* \
-      /var/tmp/* \
-    && pip install --no-cache-dir pyclean==3.0.0 \
-    && pyclean /usr \
-    && pip uninstall -y pyclean
+    && apk del .build-deps
 
 VOLUME ["/zuul"]
 ENTRYPOINT ["/run.sh"]
