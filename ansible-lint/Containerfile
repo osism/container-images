@@ -11,7 +11,10 @@ RUN apk add --no-cache --virtual .build-deps \
     && ansible-galaxy collection install -r /requirements.yml \
     && ansible-galaxy role install -r /requirements.yml \
     && mkdir -p /zuul \
-    && apk del .build-deps
+    && apk del .build-deps \
+    && uv pip install --no-cache --system pyclean==3.0.0 \
+    && pyclean /usr \
+    && uv pip uninstall --system pyclean
 
 VOLUME ["/zuul"]
 ENTRYPOINT ["/run.sh"]
