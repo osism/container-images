@@ -14,7 +14,8 @@ RUN apk add --no-cache --virtual .build-deps \
     && apk del .build-deps \
     && uv pip install --no-cache --system pyclean==3.0.0 \
     && pyclean /usr \
-    && uv pip uninstall --system pyclean
+    && uv pip uninstall --system pyclean \
+    && rm -rf /root/.ansible/tmp
 
 VOLUME ["/zuul"]
 ENTRYPOINT ["/run.sh"]
