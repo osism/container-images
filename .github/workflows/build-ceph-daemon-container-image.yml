@@ -23,8 +23,9 @@ jobs:
     strategy:
       matrix:
         version:
-          - latest-quincy
-          - latest-reef
+          - v17
+          - v18
+          - v19
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
