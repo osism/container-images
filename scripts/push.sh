@@ -32,7 +32,7 @@ generate_sbom() {
 
 docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 
-if [[ $IMAGE != "netbox" && $IMAGE != "ceph-daemon"]]; then
+if [[ $IMAGE != "netbox" && $IMAGE != "ceph-daemon" ]]; then
     # push e.g. osism/cephclient:pacific
     docker push "$REPOSITORY:$VERSION"
     generate_sbom $REPOSITORY $VERSION
