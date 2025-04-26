@@ -42,8 +42,8 @@ RUN apt-get update \
     && apt-get remove -y \
         apt-transport-https \
         software-properties-common \
-        wget \
     && apt-get clean \
+    && apt-get autoremove -y \
     && mkdir /configuration \
     && rm -rf \
       /var/lib/apt/lists/* \
