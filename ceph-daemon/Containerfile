@@ -1,8 +1,8 @@
 ARG VERSION
 FROM quay.io/ceph/ceph:$VERSION
 
-COPY files/bin /opt/ceph-container/
-COPY files/etc /opt/ceph-container/
+COPY files/bin /opt/ceph-container/bin
+COPY files/etc /opt/ceph-container/etc
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
