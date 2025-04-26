@@ -30,7 +30,6 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         ceph-common \
         fio \
-    && if [ $VERSION = "squid" ]; then apt-get install --no-install-recommends -y ceph-base; fi \
     && groupadd -g $GROUP_ID dragon \
     && useradd -g dragon -u $USER_ID -m -d /home/dragon dragon \
     && if [ ! -e /etc/bash_completion.d/ ]; then \
@@ -45,7 +44,6 @@ RUN apt-get update \
         software-properties-common \
         wget \
     && apt-get clean \
-    && apt-get autoremove -y \
     && mkdir /configuration \
     && rm -rf \
       /var/lib/apt/lists/* \
