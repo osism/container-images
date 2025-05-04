@@ -2,7 +2,7 @@ FROM python:3.13-slim-bookworm AS pre-gobuild
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y build-essential
-RUN python3 -m pip install --no-cache-dir --upgrade 'pip==25.1'
+RUN python3 -m pip install --no-cache-dir --upgrade 'pip==25.1.1'
 RUN pip3 install --no-cache-dir octavia-tempest-plugin
 
 FROM golang:bookworm AS gobuild
@@ -41,7 +41,7 @@ apt-get install --no-install-recommends -y \
   build-essential \
   iputils-ping \
   openssh-client
-python3 -m pip install --no-cache-dir --upgrade 'pip==25.1'
+python3 -m pip install --no-cache-dir --upgrade 'pip==25.1.1'
 pip3 install --no-cache-dir -r /requirements.txt
 
 # add user
