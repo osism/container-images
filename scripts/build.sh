@@ -55,6 +55,7 @@ fi
 
 docker buildx build \
   --load \
+  --sbom=true \
   --build-arg "VERSION=$VERSION" \
   --tag "$REPOSITORY:$REVISION" \
   --label "org.opencontainers.image.created=$CREATED" \
