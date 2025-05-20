@@ -1,7 +1,7 @@
 ARG PYTHON_VERSION=3.13
 FROM python:${PYTHON_VERSION}-alpine
 
-COPY --from=ghcr.io/astral-sh/uv:0.7.5 /uv /usr/local/bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.7.6 /uv /usr/local/bin/uv
 COPY files/* /
 
 RUN apk add --no-cache --virtual .build-deps \
