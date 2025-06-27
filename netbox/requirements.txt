@@ -1,5 +1,5 @@
 # Misc
-netmiko==4.5.0
+netmiko==4.6.0
 PyYAML==6.0.2
 Jinja2==3.1.6
 
@@ -7,6 +7,6 @@ Jinja2==3.1.6
 netbox-bgp==0.15.0
 netbox-data-flows==1.1.1
 netbox-initializers==4.3.0
-netbox-plugin-dns==1.3.2
+netbox-plugin-dns==1.3.3
 netbox-secrets==2.3.0
 netbox-topology-views==4.3.0
