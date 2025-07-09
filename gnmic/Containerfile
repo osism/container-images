@@ -1,0 +1,11 @@
+FROM alpine:3
+
+ARG VERSION=0.41.0
+
+RUN apk add --no-cache --virtual .build-deps wget \ 
+  && wget https://github.com/openconfig/gnmic/releases/download/v${VERSION}/gnmic_${VERSION}_Linux_x86_64.tar.gz \
+  && tar xvzf gnmic_${VERSION}_Linux_x86_64.tar.gz \
+  && rm -f gnmic_${VERSION}_Linux_x86_64.tar.gz \
+  && apk del .build-deps
+
+ENTRYPOINT ["/gnmic"]
