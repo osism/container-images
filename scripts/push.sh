@@ -30,12 +30,20 @@ generate_sbom() {
       -a
 }
 
+sign_image() {
+    local repository="$1"
+    local version="$2"
+
+    cosign sign --yes --key env://COSIGN_PRIVATE_KEY "$repository:$version"
+}
+
 docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 
 if [[ $IMAGE != "netbox" && $IMAGE != "ceph-daemon" ]]; then
     # push e.g. osism/cephclient:pacific
     docker push "$REPOSITORY:$VERSION"
     generate_sbom $REPOSITORY $VERSION
+    sign_image $REPOSITORY $VERSION
 fi
 
 if [[ $IMAGE == "cgit" ]]; then
@@ -46,6 +54,7 @@ if [[ $IMAGE == "cgit" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
         generate_sbom $REPOSITORY $version
+        sign_image $REPOSITORY $version
     fi
 fi
 
@@ -58,6 +67,7 @@ if [[ $IMAGE == "dnsmasq-osism" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
         generate_sbom $REPOSITORY $version
+        sign_image $REPOSITORY $version
     fi
 fi
 
@@ -70,6 +80,7 @@ if [[ $IMAGE == "rsync" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
         generate_sbom $REPOSITORY $version
+        sign_image $REPOSITORY $version
     fi
 fi
 
@@ -82,12 +93,14 @@ if [[ $IMAGE == "ara-server" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
         generate_sbom $REPOSITORY $version
+        sign_image $REPOSITORY $version
     fi
 
     # always push a latest osism/ara-server image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
     generate_sbom $REPOSITORY latest
+    sign_image $REPOSITORY latest
 fi
 
 # push e.g. osism/openstackclient:5.5.0
@@ -99,11 +112,13 @@ if [[ $IMAGE == "openstackclient" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
         generate_sbom $REPOSITORY $version
+        sign_image $REPOSITORY $version
     fi
 
     docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:$VERSION"
     docker push "$REPOSITORY:$VERSION"
     generate_sbom $REPOSITORY $VERSION
+    sign_image $REPOSITORY $VERSION
 fi
 
 # push e.g. osism/ceph-daemon:12.2.13 + osism/ceph-daemon:pacific
@@ -129,6 +144,7 @@ if [[ $IMAGE == "ceph-daemon" ]]; then
 	fi
 
         generate_sbom $REPOSITORY $version
+        sign_image $REPOSITORY $version
     fi
 
     # push e.g. osism/ceph-daemon:pacific
@@ -136,6 +152,7 @@ if [[ $IMAGE == "ceph-daemon" ]]; then
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
     docker push "$REPOSITORY:$version"
     generate_sbom $REPOSITORY $version
+    sign_image $REPOSITORY $version
 fi
 
 # push e.g. osism/cephclient:16.2.5
@@ -147,6 +164,7 @@ if [[ $IMAGE == "cephclient" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
         generate_sbom $REPOSITORY $version
+        sign_image $REPOSITORY $version
     fi
 fi
 
@@ -158,12 +176,14 @@ if [[ $IMAGE == "netbox" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
         docker push "$REPOSITORY:$VERSION"
         generate_sbom $REPOSITORY $VERSION
+        sign_image $REPOSITORY $VERSION
     fi
 
     # always push a latest osism/netbox image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
     generate_sbom $REPOSITORY latest
+    sign_image $REPOSITORY latest
 fi
 
 docker rmi "$REPOSITORY:$VERSION"
