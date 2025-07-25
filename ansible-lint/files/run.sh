@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export ANSIBLE_DEPRECATION_WARNINGS=False
+
 if [ -e /zuul/.ansible-lint ]; then
     python3 /prepare-config.py
 else
