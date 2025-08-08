@@ -39,7 +39,7 @@ sign_image() {
 
 docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 
-if [[ $IMAGE != "netbox" && $IMAGE != "ceph-daemon" ]]; then
+if [[ $IMAGE != "netbox" && $IMAGE != "ceph-daemon" && $IMAGE != "pulp-minimal" ]]; then
     # push e.g. osism/cephclient:pacific
     docker push "$REPOSITORY:$VERSION"
     generate_sbom $REPOSITORY $VERSION
@@ -180,6 +180,24 @@ if [[ $IMAGE == "netbox" ]]; then
     fi
 
     # always push a latest osism/netbox image
+    docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
+    docker push "$REPOSITORY:latest"
+    generate_sbom $REPOSITORY latest
+    sign_image $REPOSITORY latest
+fi
+
+# push e.g. osism/pulp:3.4.8
+if [[ $IMAGE == "pulp" ]]; then
+    if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${VERSION}" > /dev/null; then
+        echo "The image ${REPOSITORY}:${VERSION} already exists."
+    else
+        docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
+        docker push "$REPOSITORY:$VERSION"
+        generate_sbom $REPOSITORY $VERSION
+        sign_image $REPOSITORY $VERSION
+    fi
+
+    # always push a latest osism/pulp image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
     generate_sbom $REPOSITORY latest

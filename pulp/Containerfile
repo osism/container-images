@@ -1,0 +1,8 @@
+ARG VERSION=3.84.0  # renovate: datasource=docker depName=quay.io/pulp/pulp-minimal
+FROM quay.io/pulp/pulp-minimal:${VERSION}
+
+LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
+      "org.opencontainers.image.licenses"="GPL 2.0" \
+      "org.opencontainers.image.source"="https://github.com/osism/container-images" \
+      "org.opencontainers.image.url"="https://quay.io/organization/osism" \
+      "org.opencontainers.image.vendor"="OSISM GmbH"
