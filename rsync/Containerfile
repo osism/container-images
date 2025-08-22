@@ -19,7 +19,7 @@ RUN apk update --no-cache \
     && chown -R ${USER_NAME}:${USER_NAME} /data /export
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/usr/bin/rsync", "-avz", "/data", "/export"]
+CMD ["/usr/bin/rsync", "-avz", "/data/", "/export/"]
 VOLUME ["/export"]
 
 LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
