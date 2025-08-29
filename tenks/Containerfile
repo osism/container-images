@@ -57,7 +57,10 @@ EOF
 
 USER dragon
 WORKDIR /home/dragon/tenks-venv
+
 ENV PATH="/home/dragon/tenks-venv/bin:$PATH"
+ENV TOX_CONSTRAINTS_FILE="https://raw.githubusercontent.com/openstack/requirements/refs/heads/master/upper-constraints.txt"
+
 ENTRYPOINT ["/home/dragon/tenks-venv/bin/ansible-playbook", "/home/dragon/tenks-venv/ansible/deploy.yml", "--inventory", "/home/dragon/tenks-venv/ansible/inventory/groups"]
 CMD []
 
