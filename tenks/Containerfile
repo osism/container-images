@@ -1,6 +1,6 @@
 FROM python:3.13-slim-bookworm
 
-ARG REPO=https://opendev.org/openstack/tenks.git
+ARG REPO=https://github.com/osism/openstack-tenks.git
 ARG VERSION=latest
 
 ARG USER_ID=45000
