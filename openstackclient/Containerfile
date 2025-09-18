@@ -23,6 +23,7 @@ RUN apk update --no-cache \
     && apk add --no-cache \
       dumb-init \
       libstdc++ \
+      xorriso \
     && apk add --no-cache --virtual .build-deps \
       build-base \
       cargo \
@@ -30,7 +31,6 @@ RUN apk update --no-cache \
       openssl-dev \
       python3-dev \
       rust \
-      xorriso \
     && if [ $VERSION = "2025.2" ]; then wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; else wget -q -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
     && mkdir /requirements \
     && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
