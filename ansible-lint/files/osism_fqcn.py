@@ -33,6 +33,10 @@ class OsismFQCNRule(AnsibleLintRule):
                 print(exception)
                 sys.exit(0)
 
+        # Skip validation for block, rescue, and always constructs
+        if "action" not in task or "__ansible_module_original__" not in task["action"]:
+            return False
+
         for category in osism_fqcn_list:
             if (
                 task["action"]["__ansible_module_original__"]
