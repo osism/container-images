@@ -5,4 +5,4 @@ gevent==25.9.1
 gunicorn==23.0.0
 httptools==0.7.1
 mysqlclient==2.2.7
-uvloop==0.21.0
+uvloop==0.22.1
