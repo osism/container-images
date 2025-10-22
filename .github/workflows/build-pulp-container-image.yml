@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - 3.84.0  # renovate: datasource=docker depName=quay.io/pulp/pulp-minimal
+          - 3.91.1  # renovate: datasource=docker depName=quay.io/pulp/pulp-minimal
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
