@@ -1,0 +1,131 @@
+# OpenTofu Image to provide tofu binary for COPY command below
+FROM ghcr.io/opentofu/opentofu:minimal AS tofu
+
+# Baseimage
+FROM alpine:3.22
+# 14MB
+
+############## Set variables for easier modifications while building ###########
+
+# ANSIBLE_INSTALLATION
+#   set to "ansible" for full installation (~730MB)
+#   set to "ansible-core" for minimal installation (~90MB)
+ARG ANSIBLE_PYTHON_MODULE="ansible-core"
+
+# Version of kubectl to install
+#   set to version from GitHub releases page here:
+#   https://github.com/kubernetes/kubernetes/releases
+ARG KUBECTL_VERSION="v1.34.1"
+
+# Version of k9s to install
+#   set to version from GitHub releases page here:
+#   https://github.com/derailed/k9s/releases
+ARG K9S_VERSION="v0.50.16"
+
+# Version of helm to install
+#   set to version from GitHub releases page here:
+#   https://github.com/helm/helm/releases
+ARG HELM_VERSION="v3.19.0"
+
+# Version of gardenlogin to install
+#   set to version from GitHub releases page here:
+#   https://github.com/gardener/gardenlogin/releases
+ARG GARDENLOGIN_VERSION="v0.7.1"
+
+# Version of kubelogin to install
+#   set to version from GitHub releases page here:
+#   https://github.com/int128/kubelogin/releases
+ARG KUBELOGIN_VERSION="v1.34.2"
+
+################################################################################
+
+# Set default directory to work and run all commands from
+WORKDIR /workspace
+
+# Install OpenTofu following the documentation here:
+# https://opentofu.org/docs/intro/install/docker/
+# + ~110MB
+COPY --from=tofu /usr/local/bin/tofu /usr/local/bin/tofu
+
+# Install curl, tar, build utilities (like gcc and headers) and pip
+# to virtual .build-deps package to remove them later (keeping the image as
+# small as possible)
+#
+# Install python3-dev as direct dependency for Ansible and the openstackclient
+# (can not be removed later, since those depend on it)
+# + ~140MB
+#
+## Install Ansible (full) to virtual environment following the documentation here:
+## https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
+## + ~730MB
+##
+## OR
+##
+## Install Ansible (ansible-core only) to virtual environment following the
+## documentation here:
+## https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
+## + ~90MB
+#
+# Install openstackclient to virtual environment following the documentation
+# here:
+# https://docs.openstack.org/newton/user-guide/common/cli-install-openstack-command-line-clients.html
+# + ~200MB
+#
+# Install kubectl following the documentation here:
+# https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+# + ~80MB
+#
+# Install k9s with apk directly downloaded from the current GitHub releases
+# https://k9scli.io/topics/install/
+# + ~180MB
+#
+# Install helm from GitHub releases following the documentation here:
+# https://helm.sh/docs/intro/install/#from-the-binary-releases
+# + ~80MB
+#
+# Install gardenlogin from GitHub releases following the documentation here:
+# https://github.com/gardener/gardenlogin?tab=readme-ov-file#install-from-github-release
+# + ~90MB
+#
+# Install kubelogin from GitHub releases following the documentation here:
+# https://github.com/int128/kubelogin/tree/master?tab=readme-ov-file#getting-started
+# + ~20MB
+#
+# Cleanup virtual build-deps package
+
+## Total image ~1.7GB with full ansible
+## Total image ~1.0GB with ansible-core
+RUN apk update --no-cache &&\
+  apk add --no-cache --virtual .build-deps \
+  curl gcc py3-pip tar musl-dev linux-headers &&\
+  apk add --no-cache python3-dev &&\
+  python3 -m venv ansible &&\
+  source ansible/bin/activate &&\
+  pip install "${ANSIBLE_PYTHON_MODULE}" &&\
+  deactivate &&\
+  python3 -m venv openstackclient &&\
+  source openstackclient/bin/activate &&\
+  pip install python-openstackclient &&\
+  deactivate &&\
+  curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" &&\
+  install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl &&\
+  rm kubectl &&\
+  curl -LO "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_linux_amd64.apk" &&\
+  apk add --allow-untrusted k9s_linux_amd64.apk &&\
+  rm k9s_linux_amd64.apk &&\
+  curl -LO "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" &&\
+  tar -zxf "helm-${HELM_VERSION}-linux-amd64.tar.gz" &&\
+  install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm &&\
+  rm -r linux-amd64 &&\
+  rm "helm-${HELM_VERSION}-linux-amd64.tar.gz" &&\
+  curl -LO "https://github.com/gardener/gardenlogin/releases/download/${GARDENLOGIN_VERSION}/gardenlogin_linux_amd64" &&\
+  install -o root -g root -m 0755 gardenlogin_linux_amd64 /usr/local/bin/gardenlogin &&\
+  ln -s /usr/local/bin/gardenlogin /usr/local/bin/kubectl-gardenlogin &&\
+  rm gardenlogin_linux_amd64 &&\
+  curl -LO "https://github.com/int128/kubelogin/releases/download/${KUBELOGIN_VERSION}/kubelogin_linux_amd64.zip" &&\
+  unzip kubelogin_linux_amd64.zip &&\
+  install -o root -g root -m 0755 kubelogin /usr/local/bin/kubelogin &&\
+  ln -s /usr/local/bin/kubelogin /usr/local/bin/kubectl-oidc_login &&\
+  rm kubelogin README.md LICENSE &&\
+  rm kubelogin_linux_amd64.zip &&\
+  apk del .build-deps
