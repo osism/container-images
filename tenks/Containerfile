@@ -30,7 +30,7 @@ git clone --depth 1 --branch "$BRANCH" "$REPO" /home/dragon/tenks-venv
 python3 -m venv /home/dragon/tenks-venv
 source /home/dragon/tenks-venv/bin/activate
 python3 -m pip install --no-cache-dir --upgrade \
-    'pip==25.2' \
+    'pip==25.3' \
     'setuptools'
 cd /home/dragon/tenks-venv
 pip3 install --no-cache-dir .
