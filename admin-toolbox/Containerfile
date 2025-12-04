@@ -2,7 +2,7 @@
 FROM ghcr.io/opentofu/opentofu:minimal AS tofu
 
 # Baseimage
-FROM alpine:3.22
+FROM alpine:3.23
 # 14MB
 
 ############## Set variables for easier modifications while building ###########
