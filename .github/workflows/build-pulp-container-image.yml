@@ -24,7 +24,7 @@ jobs:
           - 3.91.1  # renovate: datasource=docker depName=quay.io/pulp/pulp-minimal
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install cosign
         uses: sigstore/cosign-installer@v3.10.1
