@@ -26,6 +26,7 @@ jobs:
           - quincy
           - reef
           - squid
+          - tentacle
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
