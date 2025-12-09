@@ -26,6 +26,7 @@ RUN apt-get update \
     && if [ $VERSION = "quincy" ]; then apt-add-repository --yes "deb https://download.ceph.com/debian-quincy/ bullseye main"; fi \
     && if [ $VERSION = "reef" ]; then add-apt-repository --yes -c main -U https://download.ceph.com/debian-reef/; add-apt-repository --yes -c main -U https://download.ceph.com/debian-reef/; fi \
     && if [ $VERSION = "squid" ]; then add-apt-repository --yes -c main -U https://download.ceph.com/debian-squid/; add-apt-repository --yes -c main -U https://download.ceph.com/debian-squid/; fi \
+    && if [ $VERSION = "tentacle" ]; then add-apt-repository --yes -c main -U https://download.ceph.com/debian-tentacle/; add-apt-repository --yes -c main -U https://download.ceph.com/debian-tentacle/; fi \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         ceph-common \
