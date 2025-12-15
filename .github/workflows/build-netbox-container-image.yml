@@ -26,10 +26,10 @@ jobs:
           - v4.3.5  # renovate: datasource=docker depName=quay.io/netboxcommunity/netbox
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.9.2
+        uses: sigstore/cosign-installer@v4.0.0
 
       - name: Setup docker
         uses: docker/setup-buildx-action@v3
