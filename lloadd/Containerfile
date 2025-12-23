@@ -1,4 +1,4 @@
-FROM debian:bookworm AS builder
+FROM debian:trixie AS builder
 
 ARG VERSION=2.6.9
 
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -f -y build-essential wget libevent-dev \
     && ./configure --enable-balancer=yes \
     && make depend && make && make install
 
-FROM debian:bookworm
+FROM debian:trixie
 
 RUN apt-get update && apt-get -f -y install libevent-core-2.1-7 libevent-extra-2.1-7 libsasl2-2
 
