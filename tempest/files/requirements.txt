@@ -1,4 +1,4 @@
-tempest==45.0.0
+tempest==46.0.0
 # https://docs.openstack.org/tempest/latest/plugins/plugin-registry.html#detected-plugins
 barbican-tempest-plugin
 cinder-tempest-plugin
