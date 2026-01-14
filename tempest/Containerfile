@@ -25,6 +25,8 @@ ARG GROUP_ID=45000
 COPY --link --from=gobuild --chmod=0755 /opt/octavia-tempest-plugin/test_server.bin /opt/octavia-tempest-plugin/test_server.bin
 COPY --link files/requirements.txt /requirements.txt
 
+ADD https://raw.githubusercontent.com/openstack/requirements/refs/heads/master/upper-constraints.txt /upper-constraints.txt
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
@@ -42,7 +44,7 @@ apt-get install --no-install-recommends -y \
   iputils-ping \
   openssh-client
 python3 -m pip install --no-cache-dir --upgrade 'pip==25.3'
-pip3 install --no-cache-dir -r /requirements.txt
+pip3 install --no-cache-dir -r /requirements.txt -c /upper-constraints.txt
 
 # add user
 groupadd -g "$GROUP_ID" dragon
