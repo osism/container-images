@@ -1,0 +1,9 @@
+ARG VERSION=2025.1
+FROM registry.osism.tech/kolla/keystone:${VERSION}
+
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends libapache2-mod-shib \
+    && a2dismod shib \
+    && rm -f /etc/apache2/conf-enabled/shib.conf \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /var/tmp/*
