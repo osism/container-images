@@ -1,0 +1,33 @@
+ARG VERSION=2025.1
+FROM registry.osism.tech/kolla/cinder-volume:${VERSION}
+
+ARG VERSION
+
+USER root
+
+# Map OpenStack version to Huawei driver branch
+# 2024.2 = Dalmatian, 2025.1 = Epoxy
+RUN set -e && \
+    case "${VERSION}" in \
+        2024.2) HUAWEI_BRANCH="Dalmatian" ;; \
+        2025.1) HUAWEI_BRANCH="Epoxy" ;; \
+        *) echo "Unsupported VERSION: ${VERSION}" && exit 1 ;; \
+    esac && \
+    # Find Python version dynamically
+    PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')") && \
+    HUAWEI_DIR="/var/lib/kolla/venv/lib/python${PYTHON_VERSION}/site-packages/cinder/volume/drivers/huawei" && \
+    echo "Installing Huawei drivers from branch ${HUAWEI_BRANCH} to ${HUAWEI_DIR}" && \
+    # Remove old driver files
+    rm -rf "${HUAWEI_DIR}"/* && \
+    # Get list of Python files from GitHub API and download them
+    API_URL="https://api.github.com/repos/Huawei/OpenStack_Driver/contents/Cinder/${HUAWEI_BRANCH}" && \
+    BASE_URL="https://raw.githubusercontent.com/Huawei/OpenStack_Driver/master/Cinder/${HUAWEI_BRANCH}" && \
+    curl -fsSL "${API_URL}" -o /tmp/api_response.json && \
+    FILES=$(python3 -c "import json; print(' '.join(f['name'] for f in json.load(open('/tmp/api_response.json')) if f['name'].endswith('.py')))") && \
+    rm -f /tmp/api_response.json && \
+    echo "Found files: ${FILES}" && \
+    for file in ${FILES}; do \
+        curl -fsSL "${BASE_URL}/${file}" -o "${HUAWEI_DIR}/${file}"; \
+    done
+
+USER cinder
