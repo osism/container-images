@@ -31,7 +31,7 @@ python3 -m venv /home/dragon/tenks-venv
 source /home/dragon/tenks-venv/bin/activate
 python3 -m pip install --no-cache-dir --upgrade \
     'pip==25.3' \
-    'setuptools'
+    'setuptools<82.0.0'
 cd /home/dragon/tenks-venv
 pip3 install --no-cache-dir .
 ansible-galaxy install --role-file=/home/dragon/tenks-venv/requirements.yml \
