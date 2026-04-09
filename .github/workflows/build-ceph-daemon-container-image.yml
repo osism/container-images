@@ -26,6 +26,7 @@ jobs:
           - v17
           - v18
           - v19
+          - v20
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
