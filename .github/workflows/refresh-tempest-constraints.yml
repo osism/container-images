@@ -1,0 +1,116 @@
+---
+name: Refresh tempest upper-constraints.txt
+
+"on":
+  schedule:
+    # Weekly: Sunday 04:00 UTC
+    - cron: "0 4 * * 0"
+  push:
+    branches:
+      - main
+    paths:
+      - tempest/files/requirements.txt
+  pull_request:
+    paths:
+      - tempest/files/requirements.txt
+  workflow_dispatch:
+
+# PR-scoped concurrency so different PRs don't cancel each other's refresh,
+# but multiple events on the same PR (or on main) collapse to one run.
+concurrency:
+  group: refresh-tempest-constraints-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      # On pull_request events from same-repo branches (e.g., renovate), check
+      # out the PR head so we can push refreshed constraints back to it.
+      # Fork PRs land here too but the push step below skips them.
+      - name: Checkout (PR head)
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Checkout (main / dispatch / cron)
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Refresh upper-constraints.txt
+        run: python tempest/files/refresh_constraints.py
+
+      # Pull-request path: commit refreshed constraints directly to the PR
+      # branch so the build CI runs against an in-sync constraints file.
+      #
+      # Note: the default GITHUB_TOKEN cannot re-trigger workflows on the
+      # commit it pushes. The build-tempest workflow that already started on
+      # the PR with the OLD constraints will need to be manually re-run by
+      # the maintainer (or by re-pushing). We post a PR comment to make this
+      # visible. Switching to a PAT or GitHub App would lift this limitation.
+      - name: Commit to PR branch (skip if same-repo check fails)
+        id: commit-to-pr
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          if git diff --quiet tempest/files/upper-constraints.txt; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+            echo "No drift; nothing to commit."
+            exit 0
+          fi
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add tempest/files/upper-constraints.txt
+          git commit -m "tempest: refresh upper-constraints.txt"
+          git push
+          echo "drift=true" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on PR
+        if: |
+          github.event_name == 'pull_request' &&
+          steps.commit-to-pr.outputs.drift == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --body \
+          "Refreshed \`tempest/files/upper-constraints.txt\` to match the \
+          constraints URL pinned by the new tempest tag and pushed the \
+          update to this branch.
+
+          Note: the build CI started before this push and used the **old** \
+          constraints file. Please re-run the failed \`build-tempest\` check \
+          to verify the build passes with the refreshed constraints.
+
+          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      # Cron / push-to-main / workflow_dispatch path: open a separate PR with
+      # the refreshed constraints. This is the original behavior.
+      - name: Open pull request on drift
+        if: github.event_name != 'pull_request'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: refresh-tempest-constraints
+          delete-branch: true
+          commit-message: "tempest: refresh upper-constraints.txt"
+          title: "tempest: refresh upper-constraints.txt"
+          body: |
+            Automated refresh of `tempest/files/upper-constraints.txt` to
+            match the constraints URL pinned by the tempest tag in
+            `tempest/files/requirements.txt`.
+
+            Triggered by: ${{ github.event_name }}
+            Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          add-paths: |
+            tempest/files/upper-constraints.txt
