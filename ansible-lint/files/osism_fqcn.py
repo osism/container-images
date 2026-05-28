@@ -33,14 +33,12 @@ class OsismFQCNRule(AnsibleLintRule):
                 print(exception)
                 sys.exit(0)
 
-        # Skip validation for block, rescue, and always constructs
-        if "action" not in task or "__ansible_module_original__" not in task["action"]:
+        # block/rescue/always aren't real modules; ansible-lint sets their action to this fixed string
+        module = task["action"]["__ansible_module_original__"]
+        if module == "block/always/rescue":
             return False
 
         for category in osism_fqcn_list:
-            if (
-                task["action"]["__ansible_module_original__"]
-                in osism_fqcn_list[category]
-            ):
+            if module in osism_fqcn_list[category]:
                 return False
         return True
