@@ -8,6 +8,8 @@ from typing import Any, Dict, Optional, Union
 from ansiblelint.file_utils import Lintable
 from ansiblelint.rules import AnsibleLintRule
 
+_RULES_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 class OsismAttributeOrderRule(AnsibleLintRule):
     """Ensure specific order of attributes in mappings."""
@@ -26,7 +28,7 @@ class OsismAttributeOrderRule(AnsibleLintRule):
     ) -> Union[bool, str]:
 
         with open(
-            f"{os.getcwd()}/.ansible-lint-rules/osism_attribute_order_list.yaml", "r"
+            os.path.join(_RULES_DIR, "osism_attribute_order_list.yaml"), "r"
         ) as fileStream:
             try:
                 osism_attribute_order_list = yaml.safe_load(fileStream)
