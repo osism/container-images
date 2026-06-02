@@ -5,7 +5,7 @@ exclude_paths:
   - requirements.yml
 use_default_rules: true
 rulesdir:
-  - ./.ansible-lint-rules/
+  - /opt/osism/ansible-lint-rules
 skip_list:
   - galaxy[no-changelog]
   - name[unique]

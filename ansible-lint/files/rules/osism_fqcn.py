@@ -8,6 +8,8 @@ from typing import Any, Dict, Optional, Union
 from ansiblelint.file_utils import Lintable
 from ansiblelint.rules import AnsibleLintRule
 
+_RULES_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 class OsismFQCNRule(AnsibleLintRule):
     """Use FQCN for all actions."""
@@ -25,7 +27,7 @@ class OsismFQCNRule(AnsibleLintRule):
     ) -> Union[bool, str]:
 
         with open(
-            f"{os.getcwd()}/.ansible-lint-rules/osism_fqcn_list.yaml", "r"
+            os.path.join(_RULES_DIR, "osism_fqcn_list.yaml"), "r"
         ) as fileStream:
             try:
                 osism_fqcn_list = yaml.safe_load(fileStream)

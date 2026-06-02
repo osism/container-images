@@ -2,7 +2,10 @@ ARG PYTHON_VERSION=3.13
 FROM python:${PYTHON_VERSION}-alpine
 
 COPY --from=ghcr.io/astral-sh/uv:0.10.2 /uv /usr/local/bin/uv
-COPY files/* /
+COPY files/rules/ /opt/osism/ansible-lint-rules/
+COPY files/run.sh files/prepare-config.py files/ansible-lint.yml \
+     files/requirements.txt files/requirements.yml /
+ENV XDG_CACHE_HOME=/tmp/cache
 
 RUN apk add --no-cache --virtual .build-deps \
       build-base \
