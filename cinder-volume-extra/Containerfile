@@ -1,16 +1,16 @@
-ARG VERSION=2025.1
+ARG VERSION=2025.2
 FROM registry.osism.tech/kolla/cinder-volume:${VERSION}
 
 ARG VERSION
 
 USER root
 
-# Map OpenStack version to Huawei driver branch
-# 2024.2 = Dalmatian, 2025.1 = Epoxy
+# Huawei driver
 RUN set -e && \
     case "${VERSION}" in \
         2024.2) HUAWEI_BRANCH="Dalmatian" ;; \
         2025.1) HUAWEI_BRANCH="Epoxy" ;; \
+        2025.2) HUAWEI_BRANCH="Flamingo" ;; \
         *) echo "Unsupported VERSION: ${VERSION}" && exit 1 ;; \
     esac && \
     # Find Python version dynamically
@@ -30,7 +30,7 @@ RUN set -e && \
         curl -fsSL "${BASE_URL}/${file}" -o "${HUAWEI_DIR}/${file}"; \
     done
 
-# Install LINBIT LINSTOR driver
+# LINBIT LINSTOR driver
 RUN set -e && \
     PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')") && \
     DRIVERS_DIR="/var/lib/kolla/venv/lib/python${PYTHON_VERSION}/site-packages/cinder/volume/drivers" && \
