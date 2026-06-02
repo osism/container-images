@@ -496,10 +496,5 @@ other:
   - hashivault_auth_method
   - hashivault_policy
 
-ansible:
-  - always
-  - block
-  - rescue
-
 kolla:
   - kolla_toolbox
