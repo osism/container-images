@@ -3,6 +3,6 @@ PyYAML==6.0.3
 eventlet==0.41.0
 gevent==25.9.1
 gunicorn==23.0.0
-httptools==0.7.1
+httptools==0.8.0
 mysqlclient==2.2.8
 uvloop==0.22.1
