@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bookworm AS pre-gobuild
+FROM python:3.14-slim-bookworm AS pre-gobuild
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y build-essential
@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
   -o /opt/octavia-tempest-plugin/test_server.bin \
   test_server.go
 
-FROM python:3.13-slim-bookworm
+FROM python:3.14-slim-bookworm
 
 ARG VERSION=latest
 
