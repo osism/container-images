@@ -5,6 +5,9 @@ COPY --from=ghcr.io/astral-sh/uv:0.11.22 /uv /usr/local/bin/uv
 
 COPY files/requirements.txt /requirements.txt
 COPY files/requirements.yml /requirements.yml
+COPY files/releases.txt /releases.txt
+COPY files/render-requirements.py /render-requirements.py
+COPY files/select-collections.py /select-collections.py
 COPY files/run.sh /run.sh
 
 RUN apk add --no-cache bash openssh-client sshpass \
@@ -17,11 +20,28 @@ RUN apk add --no-cache bash openssh-client sshpass \
       python3-dev \
       rust \
     && uv pip install --no-cache --system -r /requirements.txt \
-    && ansible-galaxy install -r /requirements.yml \
+    && for version in $(grep -vE '^[[:space:]]*(#|$)' /releases.txt) latest; do \
+         if [ "$version" = "latest" ]; then \
+           mkdir -p /opt/collections/latest \
+           && cp /requirements.yml /opt/collections/latest/requirements.yml \
+           && printf 'manager_version: latest\nansible_core_version: %s\n' \
+                "$(python3 -c 'from ansible.release import __version__; print(__version__)')" \
+                > /opt/collections/latest/.osism-set-info; \
+         else \
+           python3 /render-requirements.py "$version" "/opt/collections/$version"; \
+         fi \
+         && ansible-galaxy collection install \
+              -r "/opt/collections/$version/requirements.yml" \
+              -p "/opt/collections/$version" \
+         || exit 1; \
+       done \
+    && python3 /select-collections.py --build-check \
     && mkdir -p /opt/configuration/environments/manager \
     && apk del .build-deps
 
 WORKDIR /opt/configuration/environments/manager
+
+ENV ANSIBLE_COLLECTIONS_PATH=/opt/collections/latest
 
 VOLUME ["/opt/configuration"]
 ENTRYPOINT ["/run.sh"]

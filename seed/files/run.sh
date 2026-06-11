@@ -7,6 +7,9 @@ fi
 
 cd /opt/configuration/environments/manager
 
+ANSIBLE_COLLECTIONS_PATH=$(python3 /select-collections.py) || exit 1
+export ANSIBLE_COLLECTIONS_PATH
+
 playbook=$1
 shift
 
