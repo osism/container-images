@@ -1,0 +1,7 @@
+# Supported OSISM releases whose collection sets are baked into the
+# seed image, one version per line. The 'latest' set (collections from
+# main branches) is always built and is not listed here.
+# Add new releases here; prune EOL releases.
+9.4.0
+9.5.0
+10.0.0
