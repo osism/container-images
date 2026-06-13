@@ -1,4 +1,4 @@
-ARG VERSION=2025.1
+ARG VERSION=2025.2
 FROM registry.osism.tech/kolla/cinder-volume:${VERSION}
 
 ARG VERSION
