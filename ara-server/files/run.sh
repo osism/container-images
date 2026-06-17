@@ -22,7 +22,22 @@ ARA_WORKERS=${ARA_WORKERS:-5}
 ARA_WORKER_CLASS=${ARA_WORKER_CLASS:-gevent}
 ARA_WORKER_CONNECTIONS=${ARA_WORKER_CONNECTIONS:-1000}
 
-until ara-manage migrate; do
+MIGRATION_ATTEMPTS=${ARA_MIGRATION_ATTEMPTS:-30}
+
+if ! [[ "$MIGRATION_ATTEMPTS" =~ ^[1-9][0-9]*$ ]]; then
+    echo "ARA_MIGRATION_ATTEMPTS must be a positive integer, got: '$MIGRATION_ATTEMPTS'"
+    exit 1
+fi
+
+for attempt in $(seq 1 "$MIGRATION_ATTEMPTS"); do
+    if ara-manage migrate; then
+        break
+    fi
+    if [[ "$attempt" == "$MIGRATION_ATTEMPTS" ]]; then
+        echo "database migration failed after $MIGRATION_ATTEMPTS attempts"
+        echo "ARA server will not start; inspect ara-manage migrate output"
+        exit 1
+    fi
     echo "database migration failed, trying again in 10 seconds"
     sleep 10
 done
