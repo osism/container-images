@@ -34,14 +34,14 @@ jobs:
       # Fork PRs land here too but the push step below skips them.
       - name: Checkout (PR head)
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Checkout (main / dispatch / cron)
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
