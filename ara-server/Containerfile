@@ -37,6 +37,21 @@ RUN apt-get update \
     && useradd ara-server \
     && rm -rf /var/lib/apt/lists/* /wheels /requirements.txt
 
+COPY files/migrations/0018_alter_play_uuid_alter_task_uuid.py /tmp/0018-patched.py
+
+# Replace ARA's stock migration 0018 with the OSISM history-preserving version.
+# Assert the stock file's sha256 first so a future ARA release that changes 0018
+# fails the build (drift guard) instead of silently shipping a stale patch.
+# When the build fails here after an ARA bump: review the new upstream 0018,
+# confirm the patched migration still applies, then update the pinned sha256.
+RUN set -eu; \
+    MIG_DIR="$(python3 -c 'import ara.api.migrations, os; print(os.path.dirname(ara.api.migrations.__file__))')"; \
+    STOCK="$MIG_DIR/0018_alter_play_uuid_alter_task_uuid.py"; \
+    test -f "$STOCK"; \
+    echo "e5150237e6c0678f44d335009af6bab8c2b488e9fd5224ee6ac34dbdae439004  $STOCK" | sha256sum -c -; \
+    cp /tmp/0018-patched.py "$STOCK"; \
+    rm /tmp/0018-patched.py
+
 USER ara-server
 WORKDIR /home/ara-server
 
