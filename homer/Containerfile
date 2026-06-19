@@ -2,7 +2,7 @@
 
 # build stage
 FROM node:24-alpine AS build-stage
-ARG VERSION=v25.11.1  # renovate: datasource=docker depName=b4bz/homer
+ARG VERSION=v26.4.2  # renovate: datasource=docker depName=b4bz/homer
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
