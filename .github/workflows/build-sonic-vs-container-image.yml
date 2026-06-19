@@ -28,7 +28,7 @@ jobs:
           - 202411
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install cosign
         uses: sigstore/cosign-installer@v4.1.2
