@@ -22,7 +22,7 @@ generate_sbom() {
     local repository="$1"
     local version="$2"
 
-    /usr/local/bin/syft scan "$repository:$version" -o cyclonedx-json > sbom.json
+    /usr/local/bin/syft scan "$repository:$version" -o cyclonedx-json@1.6 > sbom.json
     dtrackauditor \
       -p $(basename $repository) \
       -v "$version" \
