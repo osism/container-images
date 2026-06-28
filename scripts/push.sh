@@ -84,9 +84,19 @@ if [[ $IMAGE == "rsync" ]]; then
     fi
 fi
 
-# push e.g. osism/ara-server:1.5.8
+# push e.g. osism/ara-server:1.7.5-r1
+#
+# Tag = <upstream ara version>-r<osism revision>, revision from
+# ara-server/osism-revision. The image carries OSISM patches (0018 migration,
+# run.sh) that change without an upstream version bump; the -rN revision mints
+# a fresh immutable tag so a fix is not swallowed by the skip-if-exists guard
+# below. Bump osism-revision when the ara-server layer changes. Renovate needs
+# regex versioning (osism/renovate-config) to track -rN. See the commit that
+# introduced this for the full rationale.
 if [[ $IMAGE == "ara-server" ]]; then
-    version=$(docker run --rm "$REPOSITORY:$VERSION" ara --version | awk '{ print $2 }')
+    ara_version=$(docker run --rm "$REPOSITORY:$VERSION" ara --version | awk '{ print $2 }')
+    osism_revision=$(cat ara-server/osism-revision) || { echo "missing ara-server/osism-revision"; exit 1; }
+    version="${ara_version}-r${osism_revision}"
     if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
         echo "The image ${REPOSITORY}:${version} already exists."
     else
