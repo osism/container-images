@@ -3,6 +3,7 @@ FROM python:${PYTHON_VERSION}-alpine
 
 COPY --from=ghcr.io/astral-sh/uv:0.11.22 /uv /usr/local/bin/uv
 
+COPY files/ansible.cfg /etc/ansible/ansible.cfg
 COPY files/requirements.txt /requirements.txt
 COPY files/requirements.yml /requirements.yml
 COPY files/releases.txt /releases.txt
