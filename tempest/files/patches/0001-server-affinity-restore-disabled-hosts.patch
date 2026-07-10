@@ -1,0 +1,46 @@
+Subject: [PATCH] serial_tests: restore compute hosts disabled by affinity setup
+
+ServersAffinityTest.resource_setup() disables all-but-two nova-compute
+services to build a controlled scheduling environment, but never
+re-enables them. There is no resource_cleanup()/addClassResourceCleanup()
+for the setup-disabled hosts (the only re-enable is the per-test
+_disable_compute_host() addCleanup), so every run of this class leaks a
+permanently-disabled compute service.
+
+On a 3-compute cloud this leaves exactly one host disabled after the class
+finishes. That silently breaks any workload needing all hosts -- notably
+Octavia ACTIVE_STANDBY + anti-affinity load balancer failover, which needs
+a third enabled host to place the replacement amphora and otherwise fails
+with NoValidHost.
+
+The bug is present on tempest master as of 46.3.0; no upstream fix exists
+yet. Register a class-teardown cleanup that re-enables each host this setup
+disabled, preserving the test's coverage. The setup now also skips hosts
+that were already disabled (e.g. for maintenance) rather than disabling and
+then unconditionally re-enabling them -- it restores only the state it
+changed, so a maintenance-disabled compute is never brought back into
+scheduling.
+
+Self-expiring: this patch is applied by the tempest image build with
+`patch --forward --dry-run` gating. When requirements.txt bumps tempest to
+a release that fixes this upstream, the patch will no longer apply, the
+build will fail, and this file must be deleted.
+
+--- a/tempest/serial_tests/api/compute/admin/test_server_affinity.py
++++ b/tempest/serial_tests/api/compute/admin/test_server_affinity.py
+@@ -46,8 +46,16 @@ class ServersAffinityTest(base.BaseV2ComputeAdminTest):
+         num_extra = len(services) - 2
+         for i in range(num_extra):
+             service = services.pop()
++            if service['status'] != 'enabled':
++                # Leave an already-disabled host (e.g. under
++                # maintenance) untouched; restore only what this
++                # setup disabled.
++                continue
+             cls.os_admin.services_client.update_service(
+                 service['id'], status='disabled')
++            cls.addClassResourceCleanup(
++                cls.os_admin.services_client.update_service,
++                service['id'], status='enabled')
+         cls.services = {
+             service['host']: service['id'] for service in services}
