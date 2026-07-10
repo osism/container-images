@@ -55,6 +55,9 @@ elif [[ $IMAGE == "openstackclient" ]]; then
 	PYTHON_VERSION=3.13
     fi
     BUILD_OPTS="$BUILD_OPTS --build-arg PYTHON_VERSION=$PYTHON_VERSION"
+    # ROLLING (set by the build matrix for the rolling series) selects the
+    # OpenStack master requirements in the Containerfile.
+    BUILD_OPTS="$BUILD_OPTS --build-arg ROLLING=${ROLLING:-false}"
 fi
 
 docker buildx build \

@@ -22,10 +22,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version:
-          - "2025.1"
-          - "2025.2"
-          - "2026.1"
+        # Mark the rolling series (built from OpenStack master) with
+        # rolling: "true". It is the single source of truth: it selects the
+        # master requirements in the build (ROLLING build-arg) and publishes the
+        # image as :latest (PUBLISH_LATEST). Move this flag when the rolling
+        # series advances (e.g. to a future 2026.2 entry).
+        include:
+          - version: "2025.1"
+          - version: "2025.2"
+          - version: "2026.1"
+            rolling: "true"
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -51,6 +57,7 @@ jobs:
           IMAGE: openstackclient
           REPOSITORY: osism/openstackclient
           VERSION: ${{ matrix.version }}
+          ROLLING: ${{ matrix.rolling }}
 
       - name: Push container image
         run: |
@@ -66,6 +73,7 @@ jobs:
           IMAGE: openstackclient
           REPOSITORY: osism/openstackclient
           VERSION: ${{ matrix.version }}
+          PUBLISH_LATEST: ${{ matrix.rolling }}
         if: |
           github.repository == 'osism/container-images' &&
           github.ref == 'refs/heads/main'
