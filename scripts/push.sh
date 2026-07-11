@@ -129,6 +129,19 @@ if [[ $IMAGE == "openstackclient" ]]; then
     docker push "$REPOSITORY:$VERSION"
     generate_sbom $REPOSITORY $VERSION
     sign_image $REPOSITORY $VERSION
+
+    # Publish :latest for the rolling/newest build. The workflow marks that
+    # matrix entry with PUBLISH_LATEST=true rather than hardcoding a series
+    # number here, so this stays correct when the rolling series advances
+    # (2026.1 -> 2026.2 -> ...). "openstack_version: latest" deployments then
+    # resolve to this client, matching the other OpenStack components (whose
+    # :latest is the master build).
+    if [[ "${PUBLISH_LATEST:-false}" == "true" ]]; then
+        docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
+        docker push "$REPOSITORY:latest"
+        generate_sbom $REPOSITORY latest
+        sign_image $REPOSITORY latest
+    fi
 fi
 
 # push e.g. osism/ceph-daemon:12.2.13 + osism/ceph-daemon:pacific

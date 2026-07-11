@@ -3,6 +3,11 @@ FROM python:${PYTHON_VERSION}-alpine
 
 ARG VERSION=2026.1
 
+# ROLLING=true selects the OpenStack master requirements below; the build
+# matrix sets it for the rolling series. Otherwise the stable-series
+# upper-constraints for VERSION are used.
+ARG ROLLING=false
+
 ARG USER_ID=45000
 ARG GROUP_ID=45000
 
@@ -31,7 +36,7 @@ RUN apk update --no-cache \
       openssl-dev \
       python3-dev \
       rust \
-    && if [ $VERSION = "2026.1" ]; then wget -q --tries=3 -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; else wget -q --tries=3 -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
+    && if [ "$ROLLING" = "true" ]; then wget -q --tries=3 -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-master.tar.gz; else wget -q --tries=3 -P / -O requirements.tar.gz https://tarballs.opendev.org/openstack/requirements/requirements-stable-${VERSION}.tar.gz; fi \
     && mkdir /requirements \
     && tar xzf /requirements.tar.gz -C /requirements --strip-components=1 \
     && rm -rf /requirements.tar.gz \
