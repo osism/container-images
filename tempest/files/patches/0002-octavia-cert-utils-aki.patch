@@ -1,0 +1,62 @@
+Subject: [PATCH] cert_utils: add SubjectKeyIdentifier/AuthorityKeyIdentifier
+
+octavia_tempest_plugin's test cert fixtures build a CA (generate_ca_cert_and_key)
+without a SubjectKeyIdentifier and leaf server/client certs
+(generate_server_cert_and_key / generate_client_cert_and_key) without an
+AuthorityKeyIdentifier. RFC 5280 says both SHOULD be present, and the strict
+X.509 verification now enabled by default in newer OpenSSL / Python ssl rejects
+the chain outright:
+
+    [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed:
+    Missing Authority Key Identifier
+
+The barbican TLS scenario tests (test_tls_barbican) upload one of these certs to
+Barbican, drive an Octavia TLS-terminating listener with it, then connect back
+with an httpx client that verifies against the test CA -- so every
+test_http_*_tls_traffic case fails at connect time even though Octavia itself is
+healthy (its own amphora/server/client CAs already carry SKI+AKI).
+
+Add the standard key-identifier pair: SubjectKeyIdentifier on the CA and a
+matching AuthorityKeyIdentifier (derived from the issuer public key) on the
+server and client leaf certs. Both use RFC 5280 method-1 (SHA1 of the public
+key), so the leaf AKI keyid matches the CA SKI keyid and the chain builds.
+
+Self-expiring: applied by the tempest image build with `patch --forward
+--dry-run` gating. When octavia-tempest-plugin ships this upstream and the pin
+bumps past it, the patch will no longer apply, the build will fail, and this
+file must be deleted.
+
+--- a/octavia_tempest_plugin/common/cert_utils.py
++++ b/octavia_tempest_plugin/common/cert_utils.py
+@@ -66,6 +66,9 @@ def generate_ca_cert_and_key():
+         x509.KeyUsage(True, False, False, False, False,
+                       True, True, False, False),
+         critical=True,
++    ).add_extension(
++        x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()),
++        critical=False,
+     ).sign(ca_key, hashes.SHA256(), default_backend())
+
+     return ca_cert, ca_key
+@@ -119,6 +122,10 @@ def generate_server_cert_and_key(ca_cert, ca_key, server_uuid):
+         x509.KeyUsage(True, False, True, False, False,
+                       False, False, False, False),
+         critical=True,
++    ).add_extension(
++        x509.AuthorityKeyIdentifier.from_issuer_public_key(
++            ca_key.public_key()),
++        critical=False,
+     ).sign(ca_key, hashes.SHA256(), default_backend())
+
+     return server_cert, server_key
+@@ -167,6 +174,10 @@ def generate_client_cert_and_key(ca_cert, ca_key, client_uuid):
+         x509.KeyUsage(True, True, True, False, False, False,
+                       False, False, False),
+         critical=True,
++    ).add_extension(
++        x509.AuthorityKeyIdentifier.from_issuer_public_key(
++            ca_key.public_key()),
++        critical=False,
+     ).sign(ca_key, hashes.SHA256(), default_backend())
+
+     return client_cert, client_key
