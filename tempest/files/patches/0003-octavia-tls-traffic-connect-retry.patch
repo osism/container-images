@@ -1,0 +1,57 @@
+Subject: [PATCH] test_tls_barbican: retry the initial TLS traffic connect
+
+octavia_tempest_plugin's _test_http_versions_tls_traffic (the backing method for
+test_http_1_1_tls_traffic / test_http_2_tls_traffic / test_http_1_1_tls_hsts_traffic)
+waits for the load balancer to report ACTIVE and then does a single, unretried
+httpx client.get() against the VIP. On a slow or loaded deployment the VIP
+dataplane can lag the ACTIVE status by several seconds (security-group
+programming, HAProxy bind, gratuitous ARP), so the single connect trips httpx's
+default 5s connect timeout and the test fails with httpx.ConnectTimeout even
+though the listener is healthy. The sibling traffic tests don't see this because
+they go through the plugin's validate_URL_response helper, which already retries
+the request until CONF.load_balancer.build_timeout; only this httpx path (used so
+the test can assert the negotiated HTTP version, which the requests-based helper
+cannot) does a bare get.
+
+Mirror that retry behaviour on the httpx path: retry the initial connect on
+httpx.TransportError until the VIP accepts a connection, then run the existing
+HTTP-version / HSTS assertions unchanged.
+
+Self-expiring: applied by the tempest image build with `patch --forward
+--dry-run` gating. When octavia-tempest-plugin makes this connect robust upstream
+and the pin bumps past it, the patch will no longer apply, the build will fail,
+and this file must be deleted.
+
+--- a/octavia_tempest_plugin/tests/barbican_scenario/v2/test_tls_barbican.py
++++ b/octavia_tempest_plugin/tests/barbican_scenario/v2/test_tls_barbican.py
+@@ -17,6 +17,7 @@
+ import socket
+ import ssl
+ import tempfile
++import time
+
+ from cryptography.hazmat.primitives import serialization
+ import httpx
+@@ -1268,7 +1269,21 @@
+             client_kwargs['http1'] = False
+             client_kwargs['http2'] = True
+         client = httpx.Client(**client_kwargs)
+-        r = client.get(url)
++        # A freshly built load balancer can report ACTIVE a few seconds
++        # before its VIP dataplane accepts connections (security-group
++        # programming, HAProxy bind, gratuitous ARP). Retry the initial
++        # connect until the VIP is reachable, like the plugin's
++        # validate_URL_response helper, rather than failing on a single
++        # httpx.ConnectTimeout.
++        start = time.time()
++        while True:
++            try:
++                r = client.get(url)
++                break
++            except httpx.TransportError:
++                if time.time() - start >= CONF.load_balancer.build_timeout:
++                    raise
++                time.sleep(CONF.load_balancer.build_interval)
+         self.assertEqual(http_version, r.http_version)
+         if hsts:
+             self.assertIn('strict-transport-security', r.headers)
