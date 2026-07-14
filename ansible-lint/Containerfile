@@ -5,7 +5,14 @@ COPY --from=ghcr.io/astral-sh/uv:0.11.22 /uv /usr/local/bin/uv
 COPY files/rules/ /opt/osism/ansible-lint-rules/
 COPY files/run.sh files/prepare-config.py files/ansible-lint.yml \
      files/requirements.txt files/requirements.yml /
-ENV XDG_CACHE_HOME=/tmp/cache
+# Expose kolla-ansible's kolla_toolbox module so ansible-lint can resolve the bare
+# module reference in playbooks that call it (it is not packaged as a collection).
+# Re-fetched on every build, so no vendored copy drifts. Only kolla_toolbox is copied:
+# it is self-contained, whereas e.g. kolla_container imports helpers from kolla-ansible's
+# ansible/module_utils, which are not on the import path here and would make ansible-lint's
+# args rule fail on import rather than validate the task.
+ENV XDG_CACHE_HOME=/tmp/cache \
+    ANSIBLE_LIBRARY=/opt/osism/ansible-lint-library
 
 RUN apk add --no-cache --virtual .build-deps \
       build-base \
@@ -14,6 +21,10 @@ RUN apk add --no-cache --virtual .build-deps \
     && ansible-galaxy collection install -r /requirements.yml \
     && ansible-galaxy role install -r /requirements.yml \
     && mkdir -p /zuul \
+    && git clone --depth 1 https://github.com/openstack/kolla-ansible /tmp/kolla-ansible \
+    && mkdir -p /opt/osism/ansible-lint-library \
+    && cp /tmp/kolla-ansible/ansible/library/kolla_toolbox.py /opt/osism/ansible-lint-library/ \
+    && rm -rf /tmp/kolla-ansible \
     && apk del .build-deps \
     && uv pip install --no-cache --system pyclean==3.0.0 \
     && pyclean /usr \
