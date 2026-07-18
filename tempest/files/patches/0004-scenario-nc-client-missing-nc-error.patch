@@ -1,0 +1,46 @@
+Subject: [PATCH] scenario: fail loudly when nc/ncat is missing on probe host
+
+BaseTempestTestCase.nc_client() runs the local/remote connectivity probe
+with shell.execute(..., check=False) and returns result.stdout without
+inspecting the exit status. When the host that runs the probe has no nc/ncat
+binary the command exits 127 ("command not found"), stdout is empty, and the
+caller treats the empty output as "port not reachable". Reachability tests
+(notably neutron_tempest_plugin.scenario.test_port_forwardings UDP cases)
+then retry until a misleading connectivity timeout that points at the data
+plane rather than the real cause -- a missing dependency in the test runner.
+
+Special-case exit status 127 and raise a RuntimeError naming the missing
+binary, so a missing netcat provider surfaces as a clear error instead of a
+false network-reachability failure. A genuine failed connection (nc present
+but unable to connect) still exits non-zero-but-not-127 and keeps the
+existing empty-stdout-and-retry semantics, so real reachability checks are
+unaffected.
+
+The OSISM tempest image separately ships netcat-openbsd so nc is present;
+this patch is defence-in-depth that turns any future missing-nc situation
+into an actionable error.
+
+Self-expiring: this patch is applied by the tempest image build with
+`patch --forward --dry-run` gating. When neutron-tempest-plugin is bumped to
+a release that fixes this upstream, the patch will no longer apply, the build
+will fail, and this file must be deleted.
+
+--- a/neutron_tempest_plugin/scenario/base.py
++++ b/neutron_tempest_plugin/scenario/base.py
+@@ -665,6 +665,16 @@
+         cmd = get_ncat_client_cmd(ip_address, port, protocol,
+                                   ssh_client=ssh_client)
+         result = shell.execute(cmd, ssh_client=ssh_client, check=False)
++        if result.exit_status == 127:
++            # 127 == "command not found". nc/ncat is missing on the host that
++            # runs this probe, so shell.execute(check=False) swallows the
++            # failure and returns empty stdout. Callers then interpret that as
++            # unreachable and retry until a misleading connectivity timeout.
++            # Fail loudly with the real cause instead.
++            raise RuntimeError(
++                "nc/ncat is not available where the connectivity probe runs "
++                "(command %r exited 127); install a netcat provider so "
++                "reachability tests can send traffic." % cmd)
+         return result.stdout
+ 
+     def _ensure_public_router(self, client=None, tenant_id=None):
