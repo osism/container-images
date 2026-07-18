@@ -42,6 +42,7 @@ apt-get update
 apt-get install --no-install-recommends -y \
   build-essential \
   iputils-ping \
+  netcat-openbsd \
   openssh-client \
   patch
 python3 -m pip install --no-cache-dir --upgrade 'pip==26.1.2'
