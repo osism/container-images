@@ -2,7 +2,7 @@ FROM python:3.14-slim-bookworm AS pre-gobuild
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y build-essential
-RUN python3 -m pip install --no-cache-dir --upgrade 'pip==26.2'
+RUN python3 -m pip install --no-cache-dir --upgrade 'pip==26.2.1'
 RUN pip3 install --no-cache-dir octavia-tempest-plugin
 
 FROM golang:bookworm AS gobuild
@@ -45,7 +45,7 @@ apt-get install --no-install-recommends -y \
   netcat-openbsd \
   openssh-client \
   patch
-python3 -m pip install --no-cache-dir --upgrade 'pip==26.2'
+python3 -m pip install --no-cache-dir --upgrade 'pip==26.2.1'
 pip3 install --no-cache-dir -r /requirements.txt -c /upper-constraints.txt
 
 # Apply OSISM-local tempest patches (files/patches/*.patch). Dry-run first so
