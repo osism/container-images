@@ -1,13 +1,11 @@
 gnocchiclient
 osc-placement
 python-barbicanclient
-python-ceilometerclient
 python-cinderclient
 python-cloudkittyclient
 python-designateclient
 python-glanceclient
 python-heatclient
-python-ironic-inspector-client
 python-ironicclient
 python-keystoneclient
 python-magnumclient
@@ -18,10 +16,6 @@ python-neutronclient
 python-novaclient
 python-octaviaclient
 python-openstackclient
-python-senlinclient
-python-solumclient
 python-swiftclient
 python-troveclient
-python-vitrageclient
 python-watcherclient
-python-zunclient
