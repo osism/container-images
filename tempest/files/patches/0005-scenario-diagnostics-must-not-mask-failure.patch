@@ -1,0 +1,63 @@
+Subject: [PATCH] scenario: never let diagnostics replace the real failure
+
+BaseTempestTestCase._log_local_network_status() is called from eight
+exception handlers in this module, always to enrich a failure that has
+already happened. It calls ip_utils.IPCommand().list_namespaces(), which
+shells out to `sudo /sbin/ip netns`.
+
+IPCommand() is constructed without an ssh_client, so it falls back to a proxy
+client that only exists when [neutron_plugin_options] ssh_proxy_jump_host is
+configured -- absent by default. With no client the command runs as a local
+subprocess inside the tempest runner container, which has no sudo binary, so
+the diagnostic itself raises:
+
+    neutron_tempest_plugin.exceptions.ShellCommandFailed: Command
+    "sudo '/sbin/ip' netns " failed, exit status: 127, stderr:
+    /bin/sh: 1: sudo: not found
+
+Because this happens inside an `except` block, the diagnostic failure becomes
+the outermost exception in the chain. Three consequences, all bad:
+
+1. The real failure is buried. `stestr last` and any log tail show the
+   diagnostic error; recovering the actual cause means walking the whole
+   exception chain, which is easy to miss.
+2. Tests that would have PASSED fail. Callers catch the exceptions their
+   assertions raise -- e.g. test_port_forwardings' fip_pf_connectivity()
+   catches (AssertionError, SSHTimeout) and lets wait_until_true() retry --
+   but nothing catches ShellCommandFailed, so it escapes the retry helper and
+   fails the test on a condition the test was written to tolerate.
+3. It is silent about itself. The failure looks like a data-plane problem in
+   whatever was under test, so it is investigated as one.
+
+A diagnostic must never be able to change the outcome it is describing. Wrap
+the collection so any failure is logged and swallowed. The one function covers
+all eight call sites.
+
+Deliberately broad `except Exception`: this is a best-effort enrichment path,
+every exception from it is by definition not the failure under investigation,
+and letting any of them through is the bug being fixed.
+
+--- a/neutron_tempest_plugin/scenario/base.py
++++ b/neutron_tempest_plugin/scenario/base.py
+@@ -388,9 +388,18 @@
+                           "for the console log", server['id'])
+ 
+     def _log_local_network_status(self):
+-        self._log_ns_network_status()
+-        for ns_name in ip_utils.IPCommand().list_namespaces():
+-            self._log_ns_network_status(ns_name=ns_name)
++        # Best-effort: this runs from inside `except` blocks, so an exception
++        # raised here would replace the failure being diagnosed -- burying the
++        # real cause and failing tests whose own retry helpers catch only the
++        # exceptions their assertions raise.
++        try:
++            self._log_ns_network_status()
++            for ns_name in ip_utils.IPCommand().list_namespaces():
++                self._log_ns_network_status(ns_name=ns_name)
++        except Exception as diag_exc:
++            LOG.debug("Could not collect local network status (%s: %s); "
++                      "continuing so the original failure is preserved.",
++                      type(diag_exc).__name__, diag_exc)
+ 
+     def _log_ns_network_status(self, ns_name=None):
+         try:
