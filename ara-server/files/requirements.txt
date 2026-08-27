@@ -2,7 +2,7 @@ PyMySQL==1.2.0
 PyYAML==6.0.3
 eventlet==0.41.2
 gevent==26.8.0
-gunicorn==26.1.0
+gunicorn==26.2.0
 httptools==0.8.0
 mysqlclient==2.2.8
 uvloop==0.22.1
