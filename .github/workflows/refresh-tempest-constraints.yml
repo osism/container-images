@@ -70,10 +70,10 @@ jobs:
             echo "No drift; nothing to commit."
             exit 0
           fi
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
+          git config user.email "bot@osism.tech"
+          git config user.name "OSISM Bot"
           git add tempest/files/upper-constraints.txt
-          git commit -m "tempest: refresh upper-constraints.txt"
+          git commit -s -m "tempest: refresh upper-constraints.txt"
           git push
           echo "drift=true" >> "$GITHUB_OUTPUT"
 
@@ -103,7 +103,14 @@ jobs:
         with:
           branch: refresh-tempest-constraints
           delete-branch: true
-          commit-message: "tempest: refresh upper-constraints.txt"
+          # The action defaults the author to github.actor, which makes DCO
+          # demand a sign-off from that person. Pin both identities instead.
+          author: OSISM Bot <bot@osism.tech>
+          committer: OSISM Bot <bot@osism.tech>
+          commit-message: |
+            tempest: refresh upper-constraints.txt
+
+            Signed-off-by: OSISM Bot <bot@osism.tech>
           title: "tempest: refresh upper-constraints.txt"
           body: |
             Automated refresh of `tempest/files/upper-constraints.txt` to
