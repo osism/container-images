@@ -51,7 +51,8 @@ pip3 install --no-cache-dir -r /requirements.txt -c /upper-constraints.txt
 # Apply OSISM-local tempest patches (files/patches/*.patch). Dry-run first so
 # the build fails loudly if a patch no longer applies -- e.g. once
 # requirements.txt bumps tempest to a release that fixed the bug upstream, at
-# which point the stale patch must be deleted (self-expiring, OSISM P5).
+# which point the stale patch must be deleted. That keeps this directory
+# self-expiring rather than letting it accumulate patches nobody needs.
 SITE_PACKAGES=$(python3 -c 'import tempest, os; print(os.path.dirname(os.path.dirname(tempest.__file__)))')
 for p in /patches/*.patch; do
   echo "APPLY PATCH $p"
