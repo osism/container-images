@@ -1,0 +1,71 @@
+Subject: [PATCH] image: accept a 400 for the fake legacy import URI
+
+Backport of upstream tempest c36acce98 ("Accept both legacy task import
+failure modes for fake URI", Related-Bug: #2152110,
+Change-Id: I8b227dedab0a954c940ebd0f4f6a208b14e0ffaf).
+
+test_task_create_fake_image_location is a negative test that posts a
+deliberately unresolvable location -- http://<rand>.qcow2 -- and expects
+glance to *accept* the task and then fail it during async processing.
+
+Glance 32.0.1 closed a High-severity SSRF on exactly this path
+(https://bugs.launchpad.net/glance/+bug/2152110), aligning the legacy
+type=import task with modern image import so import_from cannot bypass the
+same restrictions. validate_legacy_import_from_uri() now runs at task-create
+time and ends in resolve_pinned_address(), which resolves the hostname and
+pins the address (blocking loopback and link-local, including the
+169.254.169.254 metadata endpoint). The test's hostname does not resolve, so
+creation is rejected synchronously:
+
+    tempest.lib.exceptions.BadRequest: Bad request
+    Details: URI for legacy import task does not pass filtering:
+             http://tempest-dummy-img-file-999424753.qcow2
+
+The test never gets a task id, so its premise cannot hold and it fails on the
+create call rather than on an assertion. Nothing is wrong with the deployment:
+glance-api.conf sets no import_filtering_opts at all, so these are upstream
+defaults, and this is the hardened behaviour working as intended.
+
+Accept either outcome, so the test passes against both older and hardened
+glance.
+
+Why this is carried here: the upstream fix merged 2026-06-16, five weeks after
+tempest 46.3.0 was tagged (2026-05-09), and is in **no** tagged release --
+46.3.0 is still the newest tag and the one pinned for stable/2026.1. There is
+no release to bump to. Drop this patch as soon as requirements.txt moves to a
+tempest release containing c36acce98; the Containerfile's dry-run will fail the
+build and force exactly that.
+
+--- a/tempest/api/image/v2/admin/test_image_task.py
++++ b/tempest/api/image/v2/admin/test_image_task.py
+@@ -18,6 +18,7 @@ from tempest.common import waiters
+ from tempest import config
+ from tempest.lib.common.utils import data_utils
+ from tempest.lib import decorators
++from tempest.lib import exceptions as lib_exc
+ 
+ CONF = config.CONF
+ 
+@@ -137,9 +138,16 @@ class ImageTaskCreate(base.BaseV2ImageAdminTest):
+             image_from_format=['qcow2'],
+             disk_format=['qcow2'],
+             image_location=http_fake_url)
+-        body = self.os_admin.tasks_client.create_task(**task[0])
+-        task_observed = \
+-            waiters.wait_for_tasks_status(self.os_admin.tasks_client,
+-                                          body['id'], 'failure')
+-        task_observed = task_observed['status']
+-        self.assertEqual(task_observed, 'failure')
++        try:
++            body = self.os_admin.tasks_client.create_task(**task[0])
++        except lib_exc.BadRequest:
++            # NOTE(abhishekk): Newer glance rejects invalid import_from URIs
++            # at create time. See bug 2152110:
++            # https://bugs.launchpad.net/glance/+bug/2152110
++            return
++        # NOTE(abhishekk): Older glance accepts the task and fails during
++        # async processing. See bug 2152110:
++        # https://bugs.launchpad.net/glance/+bug/2152110
++        task_observed = waiters.wait_for_tasks_status(
++            self.os_admin.tasks_client, body['id'], 'failure')
++        self.assertEqual(task_observed['status'], 'failure')
