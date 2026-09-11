@@ -1,0 +1,76 @@
+Subject: [PATCH] router: clean up with the client that created the router
+
+Partial backport of upstream neutron-tempest-plugin 5431c1424 ("Fix admin
+router cleanup and remove BaseRouterTest class",
+Change-Id: I6bd79e7bfbc5e496009fed53dfe8d20f5f3af748).
+
+BaseRouterTest._create_router() accepts a client, creates the router with it,
+and then registers cleanup without it:
+
+    client = client or self.client
+    router = self._create_router_with_client(client, ...)
+    self.addCleanup(self._cleanup_router, router)
+
+_cleanup_router(router, client=None) forwards to delete_router(router, client),
+which falls back to cls.client -- the primary project's client. When the router
+was created with a different project's client, that fallback cannot see it:
+
+    def _cleanup_router(self, router, client=None):
+        try:
+            self.delete_router(router, client)
+            self.routers.remove(router)
+        except exceptions.NotFound:
+            pass
+
+delete_router() starts by listing the router's interfaces, which returns 404
+RouterNotFound for a router the primary project cannot see. _cleanup_router
+catches NotFound and passes, so cleanup reports success without having issued
+a single DELETE. Class cleanup retries with the same wrong client and swallows
+the same 404. Credential cleanup then deletes the owning project, and the
+router outlives both the test and its project.
+
+Two tests in api/test_routers.py:ExternalGWMultihomingRoutersTest pass
+client=self.admin_client and attach an external gateway:
+
+    test_create_router_add_external_gateways_compat
+    test_create_router_remove_external_gateways_compat
+
+Both report ok while leaving a router behind that holds an address out of the
+floating-IP range for the life of the cloud. Because the owning project is
+gone, neither a project-scoped purge nor a network-scoped teardown reaches it,
+and nothing but the creation timestamp links it back to the run. On a
+long-lived cloud this accumulates until the external range is exhausted --
+observed at roughly two routers per full-suite run, across releases and even
+on fully green runs.
+
+Pass the creation client to cleanup. This is the same client the router was
+created with, already defaulted to self.client on the line above, so the
+non-admin path is unchanged. It also makes _create_router consistent with
+_create_admin_router directly below it, which already hands its client to
+_cleanup_router.
+
+Verified A/B against a live 2026.1 cluster, running only
+ExternalGWMultihomingRoutersTest (10 tests, all passing) on the stock image
+and then on the same image plus this patch: 2 routers leaked before, 0 after.
+
+Why this is carried here rather than fixed by a version bump: upstream merged
+5431c1424 on 2026-08-25, after neutron-tempest-plugin 3.2.0 was tagged
+(2026-05-04), and it is in no tagged release -- 3.2.0 is still the newest. The
+upstream change goes further, removing BaseRouterTest entirely and moving
+router cleanup into BaseNetworkTest.resource_cleanup across eleven files; only
+the leak-fixing line is taken here. Drop this patch as soon as the installed
+neutron-tempest-plugin contains 5431c1424, at which point base_routers.py is
+gone and the Containerfile's dry-run will fail the build and force exactly
+that.
+
+--- a/neutron_tempest_plugin/api/base_routers.py
++++ b/neutron_tempest_plugin/api/base_routers.py
+@@ -39,7 +39,7 @@
+             client, router_name=name, admin_state_up=admin_state_up,
+             external_network_id=external_network_id, enable_snat=enable_snat,
+             **kwargs)
+-        self.addCleanup(self._cleanup_router, router)
++        self.addCleanup(self._cleanup_router, router, client)
+         return router
+ 
+     def _create_admin_router(self, *args, **kwargs):
