@@ -1,7 +1,7 @@
 PyMySQL==1.2.0
 PyYAML==6.0.3
 eventlet==0.41.2
-gevent==26.8.0
+gevent==26.9.0
 gunicorn==26.2.0
 httptools==0.8.0
 mysqlclient==2.3.0
