@@ -3,12 +3,159 @@ FROM quay.io/ceph/ceph:$VERSION
 
 COPY files/bin /opt/ceph-container/bin
 COPY files/etc /opt/ceph-container/etc
+COPY patches /patches
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Change the UID and GID of the Ceph user/group from 167 to 64045.
 RUN usermod -u 64045 ceph
 RUN groupmod -g 64045 ceph
+
+# Carried upstream fixes. cephadm discovers a host's addresses only through
+# `ip route ls`, so an address carrying a host prefix (/32 on a dummy device --
+# the routed reference design) is invisible to it: mon placement filters out
+# every host and `orch apply <svc> --networks` places nothing. Patched here
+# until the fix is in a release. Each patch is dry-run first, so a patch that
+# no longer applies fails the build instead of being silently skipped.
+#
+# patches/v20/*.patch are static `git diff` snapshots of the
+# cephadm-discovery-carry branch (based on tag v20.2.4) in the ceph fork
+# this carry tracks -- they are not generated at build time. Whenever that
+# branch moves, these three files are stale until regenerated from its new
+# HEAD, one `git diff <base tag>..HEAD -- <path> | sed 's|/<path-prefix>/|/|g'`
+# per file (cephadmlib/host_facts.py -> 0001, cephadm.py -> 0002,
+# pybind/mgr/cephadm/ excluding its tests/ -> 0003). A stale patch here can
+# build and pass every check below while shipping code the ceph branch no
+# longer contains.
+#
+# /usr/sbin/cephadm is a zipapp, not a script: it is unpacked, patched and
+# repacked. Its .pyc members are dropped so the patched sources are what runs.
+#
+# The base image (CentOS Stream 9, all of v17-v20) carries no `patch` binary.
+# Installed and removed within this one RUN so it never persists into an
+# unpatched series' image (nothing installed at all) nor into a patched
+# series' shipped layer.
+#
+# The patch and verification steps used to gate on the identical predicate
+# ([ -d PATCH_DIR ]), and the loops below only ever enumerated 0001-*, 0002-*
+# and 0003-*. A patch file that fell outside those three globs -- a future
+# 0004-* -- would be silently skipped rather than applied, and the build
+# would still go green. Instead of trusting the three hardcoded globs, count
+# how many patches were actually applied and assert it equals the number of
+# *.patch files present in the series directory, so an unaccounted-for patch
+# fails the build loudly. One RUN heredoc for the whole step, for the same
+# truncation reason documented on the verification RUN below.
+ARG VERSION
+RUN <<'SH'
+set -eux
+PATCH_DIR="/patches/${VERSION%%.*}"
+if [ -d "$PATCH_DIR" ]; then
+  dnf install -y patch
+  python3 -c "import zipfile,sys; sys.exit(0 if zipfile.is_zipfile('/usr/sbin/cephadm') else 1)"
+  # Preserve the original zipapp's shebang instead of reconstructing it, so a
+  # base image that ever ships a different interpreter is carried forward
+  # rather than silently rewritten.
+  SHEBANG="$(head -n1 /usr/sbin/cephadm)"
+  INTERPRETER="${SHEBANG#\#!}"
+  mkdir -p /tmp/cephadm-zipapp
+  cd /tmp/cephadm-zipapp
+  python3 -c "import zipfile; zipfile.ZipFile('/usr/sbin/cephadm').extractall('.')"
+  find . -name '*.pyc' -delete
+  applied=0
+  for p in $(find "$PATCH_DIR" -name '0001-*.patch' | LC_ALL=C sort); do
+    patch --forward --batch -p1 --dry-run < "$p"
+    patch --forward --batch -p1 < "$p"
+    applied=$((applied + 1))
+  done
+  for p in $(find "$PATCH_DIR" -name '0002-*.patch' | LC_ALL=C sort); do
+    patch --forward --batch -p1 --dry-run __main__.py < "$p"
+    patch --forward --batch -p1 __main__.py < "$p"
+    applied=$((applied + 1))
+  done
+  INTERPRETER="$INTERPRETER" python3 -c "import os, zipapp; zipapp.create_archive('.', '/usr/sbin/cephadm', interpreter=os.environ['INTERPRETER'])"
+  chmod 0755 /usr/sbin/cephadm
+  cd /; rm -rf /tmp/cephadm-zipapp
+  cd /usr/share/ceph/mgr/cephadm
+  for p in $(find "$PATCH_DIR" -name '0003-*.patch' | LC_ALL=C sort); do
+    patch --forward --batch -p1 --dry-run < "$p"
+    patch --forward --batch -p1 < "$p"
+    applied=$((applied + 1))
+  done
+  find /usr/share/ceph/mgr/cephadm -name '*.pyc' -delete
+  total=$(find "$PATCH_DIR" -name '*.patch' | wc -l)
+  if [ "$applied" -ne "$total" ]; then
+    echo "patch count mismatch in $PATCH_DIR: applied $applied of $total *.patch files" >&2
+    exit 1
+  fi
+  dnf remove -y patch
+  dnf clean all
+fi
+rm -rf /patches
+SH
+
+# Prove the patch is in the artifact that actually runs, not merely on disk.
+# One RUN heredoc for the whole shell block: a `python3 - <<PY` opened from a
+# backslash-continued RUN truncates the instruction at the delimiter, and the
+# shell then dies on the unterminated `if` (built and confirmed, 2026-09-22).
+# The patch-specific assertions are conditional on the same series as the patch
+# step -- this image is built for v17..v20 and only one series carries it.
+ARG VERSION
+COPY patches /patches-marker
+RUN <<'SH'
+set -eux
+cephadm --help > /dev/null
+SERIES="${VERSION%%.*}"
+if [ -d "/patches-marker/$SERIES" ]; then
+  python3 - <<'PY'
+import sys, types, zipfile
+
+ZIPAPP = '/usr/sbin/cephadm'
+z = zipfile.ZipFile(ZIPAPP)
+assert not [n for n in z.namelist() if n.endswith('.pyc')], 'stale bytecode in zipapp'
+
+# Load the packaged code and RUN it -- a grep proves only that bytes are on
+# disk. cephadm.py guards its entry point with __name__ == '__main__', so
+# executing the module body under another name defines without running.
+sys.path.insert(0, ZIPAPP)
+from cephadmlib.host_facts import _parse_ipv4_addr
+from cephadmlib.net_utils import EndPoint
+
+mod = types.ModuleType('cephadm_packaged')
+exec(compile(z.read('__main__.py'), 'cephadm', 'exec'), mod.__dict__)
+
+# Discovery: a dummy /32 with no route of its own.
+out = ('3: loopback0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 state UNKNOWN\n'
+       '    inet 10.10.0.10/32 scope global loopback0\n')
+assert _parse_ipv4_addr(out) == {'10.10.0.10/32': {'loopback0': {'10.10.0.10'}}}, \
+    'packaged discovery does not see a host prefix'
+
+# Inference, the flat-topology regression: the /32 must not be inferred.
+mod.list_networks = lambda ctx: {
+    '192.168.16.0/20': {'ens3': ['192.168.16.10']},
+    '192.168.16.10/32': {'ens3': ['192.168.16.10']},
+}
+got = mod.infer_mon_network(mod.CephadmContext(), [EndPoint('192.168.16.10', 3300)])
+assert got == '192.168.16.0/20', f'packaged inference returned {got!r}'
+
+# Inference, routed: host prefixes only must still fail loudly.
+mod.list_networks = lambda ctx: {'10.10.0.10/32': {'loopback0': ['10.10.0.10']}}
+try:
+    mod.infer_mon_network(mod.CephadmContext(), [EndPoint('10.10.0.10', 3300)])
+except Exception as e:
+    assert 'Cannot infer CIDR network' in str(e), e
+else:
+    raise SystemExit('packaged inference invented a network from a host prefix')
+
+print('packaged cephadm: discovery and inference guard verified')
+PY
+  grep -q 'is_single_host_network' /usr/share/ceph/mgr/cephadm/utils.py
+  grep -q 'Containment pass' /usr/share/ceph/mgr/cephadm/schedule.py
+  grep -q 'is_single_host_network' /usr/share/ceph/mgr/cephadm/serve.py
+  grep -q 'is_single_host_network' /usr/share/ceph/mgr/cephadm/services/ingress.py
+  python3 -c "import py_compile; py_compile.compile('/usr/share/ceph/mgr/cephadm/schedule.py', doraise=True)"
+fi
+rm -rf /patches-marker
+SH
 
 # Adjust the permissions of all files and directories accordingly.
 RUN find / -path /proc -prune -o -group 167 -exec chgrp -h ceph {} \;
