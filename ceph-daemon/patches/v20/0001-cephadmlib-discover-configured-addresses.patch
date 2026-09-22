@@ -1,0 +1,109 @@
+diff --git a/cephadmlib/host_facts.py b/cephadmlib/host_facts.py
+index 387a4a3cb0a..55e6ddda0cf 100644
+--- a/cephadmlib/host_facts.py
++++ b/cephadmlib/host_facts.py
+@@ -850,6 +850,9 @@ def list_networks(ctx):
+     # for x in j:
+     res = _list_ipv4_networks(ctx)
+     res.update(_list_ipv6_networks(ctx))
++    addr_out = _list_addresses(ctx)
++    _merge_single_host_networks(res, _parse_ipv4_addr(addr_out))
++    _merge_single_host_networks(res, _parse_ipv6_addr(addr_out))
+     return res
+ 
+ 
+@@ -867,6 +870,38 @@ def _list_ipv4_networks(
+     return _parse_ipv4_route(out)
+ 
+ 
++def _list_addresses(ctx: CephadmContext) -> str:
++    # A single family-agnostic call: `_parse_ip_addr`'s regex already
++    # discriminates `inet ` from `inet6 ` in the same output, so listing each
++    # family separately only doubles the subprocess count for no benefit.
++    execstr: Optional[str] = find_executable('ip')
++    if not execstr:
++        raise FileNotFoundError("unable to find 'ip' command")
++    out, _, _ = call_throws(
++        ctx,
++        [execstr, 'addr', 'ls'],
++        verbosity=CallVerbosity.QUIET_UNLESS_ERROR,
++    )
++    return out
++
++
++def _merge_single_host_networks(
++    dst: Dict[str, Dict[str, Set[str]]],
++    src: Dict[str, Dict[str, Set[str]]],
++) -> None:
++    # `src` holds single-host keys only, by construction of _parse_ip_addr.
++    # Those are unioned rather than skipped when they already exist: a
++    # route-derived single-host key can hold an unrelated address (its key is
++    # a route destination, its value that route's `src`), and an IPv6
++    # single-host key can exist with an empty set, so skipping would leave the
++    # configured address undiscovered -- which is the defect this closes.
++    # Broader subnets are never written to: their address sets decide which
++    # address daemons bind, and re-sorting one would relocate daemons.
++    for net, ifaces in src.items():
++        for iface, ips in ifaces.items():
++            dst.setdefault(net, {}).setdefault(iface, set()).update(ips)
++
++
+ def _parse_ipv4_route(out: str) -> Dict[str, Dict[str, Set[str]]]:
+     r = {}  # type: Dict[str, Dict[str, Set[str]]]
+     p = re.compile(
+@@ -889,6 +924,55 @@ def _parse_ipv4_route(out: str) -> Dict[str, Dict[str, Set[str]]]:
+     return r
+ 
+ 
++def _parse_ip_addr(out: str, keyword: str) -> Dict[str, Dict[str, Set[str]]]:
++    # An address is discoverable through `ip route ls` only when some route
++    # advertises it as a preferred source, so an address carrying a host
++    # prefix on a dummy or loopback device is invisible there although it is
++    # configured, bindable and answering. Register each configured address as
++    # a single-host network, which is a shape this map already has: the route
++    # parser normalises a bare destination the same way.
++    r = {}  # type: Dict[str, Dict[str, Set[str]]]
++    iface_p = re.compile(r'^\d+: (\S+?)(?:@\S+)?: <(\S*)>')
++    addr_p = re.compile(r'^\s+%s (\S+?)/(?:\d+) ?(.*)$' % keyword)
++    iface = None  # type: Optional[str]
++    admin_up = False
++    for line in out.splitlines():
++        m = iface_p.match(line)
++        if m:
++            iface = m.group(1)
++            # IFF_UP, the administrative flag -- deliberately not the
++            # operational state: dummy and loopback devices report
++            # `state UNKNOWN` while carrying perfectly bindable addresses.
++            admin_up = 'UP' in m.group(2).split(',')
++            continue
++        m = addr_p.match(line)
++        if not m or iface is None or not admin_up:
++            continue
++        ip = m.group(1)
++        flags = m.group(2).split()
++        # Duplicate address detection may still be running, or may have
++        # failed; either way the address cannot be bound yet.
++        if 'tentative' in flags or 'dadfailed' in flags:
++            continue
++        addr = ipaddress.ip_address(ip)
++        # Link-local addresses need an interface scope this map cannot
++        # carry, and loopback answers are synthesised from the subnet by
++        # consumers that want them.
++        if addr.is_loopback or addr.is_link_local:
++            continue
++        net = '%s/%d' % (ip, addr.max_prefixlen)
++        r.setdefault(net, {}).setdefault(iface, set()).add(ip)
++    return r
++
++
++def _parse_ipv4_addr(out: str) -> Dict[str, Dict[str, Set[str]]]:
++    return _parse_ip_addr(out, 'inet')
++
++
++def _parse_ipv6_addr(out: str) -> Dict[str, Dict[str, Set[str]]]:
++    return _parse_ip_addr(out, 'inet6')
++
++
+ def _list_ipv6_networks(
+     ctx: CephadmContext,
+ ) -> Dict[str, Dict[str, Set[str]]]:
