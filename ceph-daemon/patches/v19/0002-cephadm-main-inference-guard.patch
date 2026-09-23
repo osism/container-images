@@ -1,0 +1,20 @@
+diff --git a/cephadm.py b/cephadm.py
+index 35ebab65f91..a6c3e3809ca 100755
+--- a/cephadm.py
++++ b/cephadm.py
+@@ -2037,6 +2037,15 @@ def infer_mon_network(ctx: CephadmContext, mon_eps: List[EndPoint]) -> Optional[
+     # Make sure IP is configured locally, and then figure out the CIDR network
+     mon_networks = []
+     for net, ifaces in list_networks(ctx).items():
++        # A single-host prefix is no evidence of the operator's intended
++        # cluster network: it describes one host, and this function's result
++        # becomes the cluster-wide public_network. Declared single-host
++        # networks are still honoured -- get_public_net_from_cfg short-
++        # circuits this function entirely when public_network is configured.
++        network = ipaddress.ip_network(net)
++        if network.prefixlen == network.max_prefixlen:
++            continue
++
+         # build local_ips list for the specified network
+         local_ips: List[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = []
+         for _, ls in ifaces.items():
