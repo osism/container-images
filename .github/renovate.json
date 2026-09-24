@@ -18,6 +18,12 @@
     {
       "matchPaths": ["netbox/requirements.txt", "netbox/Containerfile", ".github/workflows/build-netbox-container-image.yml"],
       "groupName": "netbox"
+    },
+    {
+      "description": "Bump tempest and its plugins in one PR, so the constraints refresh that a tempest bump triggers covers the plugins too",
+      "matchFileNames": ["tempest/files/requirements.txt"],
+      "matchPackageNames": ["tempest", "/-tempest-plugin$/"],
+      "groupName": "tempest"
     }
   ]
 }
