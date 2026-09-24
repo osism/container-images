@@ -21,6 +21,7 @@ jobs:
   build-cephclient-container-image:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         version:
           - quincy
