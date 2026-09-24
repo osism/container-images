@@ -1,14 +1,14 @@
 tempest==46.3.0
-extras
+extras==1.0.0
 # https://docs.openstack.org/tempest/latest/plugins/plugin-registry.html#detected-plugins
-barbican-tempest-plugin
-cinder-tempest-plugin
-designate-tempest-plugin
-glance-tempest-plugin
-ironic-tempest-plugin
-keystone-tempest-plugin
-magnum-tempest-plugin
-manila-tempest-plugin
-neutron-tempest-plugin
-octavia-tempest-plugin
-telemetry-tempest-plugin
+barbican-tempest-plugin==4.5.0
+cinder-tempest-plugin==1.22.0
+designate-tempest-plugin==0.29.0
+glance-tempest-plugin==0.16.0
+ironic-tempest-plugin==3.2.0
+keystone-tempest-plugin==0.21.0
+magnum-tempest-plugin==2.11.0
+manila-tempest-plugin==3.1.0
+neutron-tempest-plugin==3.2.0
+octavia-tempest-plugin==3.4.0
+telemetry-tempest-plugin==2.10.0

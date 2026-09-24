@@ -3,7 +3,8 @@ FROM python:3.14-slim-bookworm AS pre-gobuild
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y build-essential
 RUN python3 -m pip install --no-cache-dir --upgrade 'pip==26.2.1'
-RUN pip3 install --no-cache-dir octavia-tempest-plugin
+COPY --link files/requirements.txt files/upper-constraints.txt /
+RUN pip3 install --no-cache-dir -c /requirements.txt -c /upper-constraints.txt octavia-tempest-plugin
 
 FROM golang:bookworm AS gobuild
 
