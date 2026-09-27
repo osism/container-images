@@ -4,7 +4,7 @@ RUN git clone https://github.com/jenningsloy318/redfish_exporter /build
 
 WORKDIR /build
 
-RUN make build
+RUN CGO_ENABLED=0 make build
 
 FROM golang:alpine
 
@@ -14,7 +14,7 @@ COPY files/config.yaml /config.yaml
 RUN apk add --no-cache \
       dumb-init
 
-ENTRYPOINT ["usr/bin/dumb-init", "--", "/redfish_exporter", "--config.file=/config.yaml"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/redfish_exporter", "--config.file=/config.yaml"]
 
 LABEL "org.opencontainers.image.documentation"="https://osism.tech/docs/" \
       "org.opencontainers.image.licenses"="ASL 2.0" \
