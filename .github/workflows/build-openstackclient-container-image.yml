@@ -21,6 +21,7 @@ jobs:
   build-openstackclient-container-image:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         # Mark the rolling series (built from OpenStack master) with
         # rolling: "true". It is the single source of truth: it selects the
