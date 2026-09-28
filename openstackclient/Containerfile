@@ -23,6 +23,10 @@ COPY files/requirements.extra.txt /requirements.extra.txt
 # integer from pointer without a cast [-Wint-conversion]
 ENV CFLAGS="-Wno-int-conversion"
 
+# uv's default of 3 retries gives up after about 5 seconds, which a brief
+# PyPI 503 can outlast. 10 retries back off for about 2 minutes.
+ARG UV_HTTP_RETRIES=10
+
 RUN apk update --no-cache \
     && apk upgrade --no-cache --available \
     && apk add --no-cache \
