@@ -18,15 +18,18 @@ RUN groupmod -g 64045 ceph
 # until the fix is in a release. Each patch is dry-run first, so a patch that
 # no longer applies fails the build instead of being silently skipped.
 #
-# patches/v20/*.patch are static `git diff` snapshots of the
-# cephadm-discovery-carry branch (based on tag v20.2.4) in the ceph fork
-# this carry tracks -- they are not generated at build time. Whenever that
-# branch moves, these three files are stale until regenerated from its new
-# HEAD, one `git diff <base tag>..HEAD -- <path> | sed 's|/<path-prefix>/|/|g'`
+# patches/v<N>/*.patch are static `git diff` snapshots of a branch in the
+# ceph fork this carry tracks -- they are not generated at build time:
+# v20 from cephadm-discovery-carry (based on tag v20.2.4), v19 from
+# cephadm-discovery-carry-squid (v19.2.6), v18 from
+# cephadm-discovery-carry-reef (v18.2.8). Whenever a branch moves, its
+# series is stale until regenerated from its new HEAD, one
+# `git diff <base tag>..HEAD -- <path> | sed 's|/<path-prefix>/|/|g'`
 # per file (cephadmlib/host_facts.py -> 0001, cephadm.py -> 0002,
-# pybind/mgr/cephadm/ excluding its tests/ -> 0003). A stale patch here can
-# build and pass every check below while shipping code the ceph branch no
-# longer contains.
+# pybind/mgr/cephadm/ excluding its tests/ -> 0003). Reef has no cephadmlib
+# package -- cephadm is the one cephadm.py -- so v18 has no 0001. A stale
+# patch here can build and pass every check below while shipping code the
+# ceph branch no longer contains.
 #
 # /usr/sbin/cephadm is a zipapp, not a script: it is unpacked, patched and
 # repacked. Its .pyc members are dropped so the patched sources are what runs.
@@ -98,7 +101,7 @@ SH
 # backslash-continued RUN truncates the instruction at the delimiter, and the
 # shell then dies on the unterminated `if` (built and confirmed, 2026-09-22).
 # The patch-specific assertions are conditional on the same series as the patch
-# step -- this image is built for v17..v20 and only one series carries it.
+# step -- this image is built for v17..v20 and not every series carries it.
 ARG VERSION
 COPY patches /patches-marker
 RUN <<'SH'
@@ -107,7 +110,7 @@ cephadm --help > /dev/null
 SERIES="${VERSION%%.*}"
 if [ -d "/patches-marker/$SERIES" ]; then
   python3 - <<'PY'
-import sys, types, zipfile
+import logging, sys, types, zipfile
 
 ZIPAPP = '/usr/sbin/cephadm'
 z = zipfile.ZipFile(ZIPAPP)
@@ -117,11 +120,17 @@ assert not [n for n in z.namelist() if n.endswith('.pyc')], 'stale bytecode in z
 # disk. cephadm.py guards its entry point with __name__ == '__main__', so
 # executing the module body under another name defines without running.
 sys.path.insert(0, ZIPAPP)
-from cephadmlib.host_facts import _parse_ipv4_addr
-from cephadmlib.net_utils import EndPoint
-
 mod = types.ModuleType('cephadm_packaged')
 exec(compile(z.read('__main__.py'), 'cephadm', 'exec'), mod.__dict__)
+
+# Reef (v18) predates the cephadmlib package: everything is in __main__.py,
+# and its module-level logger stays None until main() assigns it.
+if 'cephadmlib/host_facts.py' in z.namelist():
+    from cephadmlib.host_facts import _parse_ipv4_addr
+    from cephadmlib.net_utils import EndPoint
+else:
+    _parse_ipv4_addr, EndPoint = mod._parse_ipv4_addr, mod.EndPoint
+    mod.logger = logging.getLogger()
 
 # Discovery: a dummy /32 with no route of its own.
 out = ('3: loopback0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 state UNKNOWN\n'
