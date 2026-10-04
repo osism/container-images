@@ -144,11 +144,21 @@ if [[ $IMAGE == "openstackclient" ]]; then
     fi
 fi
 
-# push e.g. osism/ceph-daemon:12.2.13 + osism/ceph-daemon:pacific
+# push e.g. osism/ceph-daemon:20.2.4-r1 + osism/ceph-daemon:tentacle
+#
+# Version tag = <upstream ceph version>-r<osism revision>, revision from
+# ceph-daemon/osism-revision. The image carries OSISM patches
+# (ceph-daemon/patches/) that change without an upstream version bump; the -rN
+# revision mints a fresh immutable tag so a patch is not swallowed by the
+# skip-if-exists guard below, as for ara-server. Bump osism-revision when the
+# ceph-daemon layer changes. The series tag (tentacle, ...) still follows every
+# build.
 if [[ $IMAGE == "ceph-daemon" ]]; then
 
-    # push e.g. osism/ceph-daemon:12.2.13
-    version=$(docker run --rm --entrypoint=/usr/bin/ceph "$REPOSITORY:$VERSION" --version | awk '{ print $3 }')
+    # push e.g. osism/ceph-daemon:20.2.4-r1
+    ceph_version=$(docker run --rm --entrypoint=/usr/bin/ceph "$REPOSITORY:$VERSION" --version | awk '{ print $3 }')
+    osism_revision=$(cat ceph-daemon/osism-revision) || { echo "missing ceph-daemon/osism-revision"; exit 1; }
+    version="${ceph_version}-r${osism_revision}"
     if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
         echo "The image ${REPOSITORY}:${version} already exists."
     else
