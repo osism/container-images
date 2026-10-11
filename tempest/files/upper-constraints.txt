@@ -150,7 +150,7 @@ XStatic-roboto-fontface===0.8.0.1
 pyudev===0.24.4
 eventlet===0.40.4
 openstack-doc-tools===4.0.1
-oslo.messaging===17.3.0
+oslo.messaging===17.3.1
 jira===3.10.5
 PyJWT===2.11.0
 typing_extensions===4.15.0
@@ -269,7 +269,7 @@ oslo.log===8.1.1
 nodeenv===1.10.0
 gossip===2.5.0
 suds-community===1.2.0
-os_vif===4.3.0
+os_vif===4.3.1
 qrcode===8.2
 oslo.middleware===8.0.0
 XStatic-mdi===1.6.50.3
