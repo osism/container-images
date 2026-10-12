@@ -1,0 +1,70 @@
+Subject: [PATCH] designate: give each PTR test class its own subnet
+
+The positive and negative PTR test classes each create their own
+external network, but BasePtrTest.resource_setup() gives both the same
+198.51.100.0/24 subnet and 198.51.100.10-200 allocation pool. Network
+isolation does not isolate designate's reverse namespace: designate
+derives the PTR zone and record name from the floating IP address, and
+_create_or_update_managed_recordset() finds an existing recordset by
+(zone, name, type) and replaces its records. The floating IP's UUID and
+project are only record metadata.
+
+When neutron hands both classes the same address while both PTRs are
+live, the second set reports action UPDATE, so the CREATE assertion in
+_set_ptr() fails. The first FIP's record is gone: its status reads
+INACTIVE, so its ACTIVE waiter times out after 360 s, and its cleanup
+unset returns 404 ("No such FloatingIP"). In the failures observed so
+far the colliding pair was test_list_floatingip_ptr_records and
+test_show_floatingip_ptr_impersonate_another_project_no_header, with
+either test on either side. The failure is intermittent because neutron
+picks floating IP addresses at random from the pool.
+
+Reproduced on a 2026.1 cluster with two external networks on
+198.51.100.0/24 and two floating IPs forced to the same address: the
+second set returned UPDATE, the first read INACTIVE once the second was
+unset, and its unset returned 404. The same steps with different
+addresses stayed clean.
+
+Give the negative class 203.0.113.0/24 (TEST-NET-3) so the two classes
+can never share an address. The CREATE assertion stays: accepting
+UPDATE would hide exactly this interference.
+
+--- a/designate_tempest_plugin/tests/api/v2/test_ptrs.py
++++ b/designate_tempest_plugin/tests/api/v2/test_ptrs.py
+@@ -57,12 +57,16 @@
+             cls.admin_network_client.delete_network,
+             cls.external_network['id'])
+ 
++        # PTRs are keyed by address across external networks. Keep the
++        # positive and negative classes in disjoint reverse namespaces.
++        prefix = cls.ptr_subnet_prefix
++
+         # Create subnet for External network
+         cls.external_subnet = cls.admin_subnet_client.create_subnet(
+             network_id=cls.external_network['id'],
+             allocation_pools=[
+-                {'start': '198.51.100.10', 'end': '198.51.100.200'}],
+-            cidr='198.51.100.0/24', ip_version=4, enable_dhcp=False)
++                {'start': prefix + '.10', 'end': prefix + '.200'}],
++            cidr=prefix + '.0/24', ip_version=4, enable_dhcp=False)
+         cls.addClassResourceCleanup(
+             test_utils.call_and_ignore_notfound_exc,
+             cls.admin_subnet_client.delete_subnet,
+@@ -75,6 +79,8 @@
+ 
+ 
+ class DesignatePtrRecord(BasePtrTest, tempest.test.BaseTestCase):
++
++    ptr_subnet_prefix = '198.51.100'
+ 
+     credentials = ['primary', 'admin']
+ 
+@@ -196,6 +202,8 @@
+ 
+ 
+ class DesignatePtrRecordNegative(BasePtrTest, tempest.test.BaseTestCase):
++
++    ptr_subnet_prefix = '203.0.113'
+ 
+     credentials = ['primary', 'admin']
+ 
