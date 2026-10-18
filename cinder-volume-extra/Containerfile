@@ -22,7 +22,10 @@ RUN set -e && \
     # Get list of Python files from GitHub API and download them
     API_URL="https://api.github.com/repos/Huawei/OpenStack_Driver/contents/Cinder/${HUAWEI_BRANCH}" && \
     BASE_URL="https://raw.githubusercontent.com/Huawei/OpenStack_Driver/master/Cinder/${HUAWEI_BRANCH}" && \
-    curl -fsSL "${API_URL}" -o /tmp/api_response.json && \
+    # On failure, repeat the request without the kolla curlrc (-q) to log
+    # the response headers and body, which --fail discards
+    { curl -fsSL "${API_URL}" -o /tmp/api_response.json || \
+        { curl -q -sS -i "${API_URL}"; exit 1; }; } && \
     FILES=$(python3 -c "import json; print(' '.join(f['name'] for f in json.load(open('/tmp/api_response.json')) if f['name'].endswith('.py')))") && \
     rm -f /tmp/api_response.json && \
     echo "Found files: ${FILES}" && \
