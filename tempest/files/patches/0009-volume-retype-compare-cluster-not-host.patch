@@ -1,0 +1,74 @@
+Subject: [PATCH] volume: compare cluster, not host, on in-place retype
+
+VolumeRetypeWithoutMigrationTest.test_available_volume_retype retypes a
+volume with migration_policy='never' and asserts that
+os-vol-host-attr:host is unchanged. That only holds when cinder-volume
+is not clustered. With Active/Active (cinder-volume `cluster =` set) the
+scheduler matches the volume's cluster in find_retype_backend(), and
+VolumeManager.retype() writes the selected backend's host and
+cluster_name back to the volume. That host can be any member of the
+cluster, so the host attribute moves while the volume stays on the same
+backend:
+
+    testtools.matchers._impl.MismatchError: !=:
+    reference = 'testbed-node-0@rbd-volumes#volumes'
+    actual    = 'testbed-node-2@rbd-volumes#volumes'
+
+The failure is random: it fires only when the request lands on a
+scheduler whose cluster entry carries a different member than the one
+that created the volume.
+
+Compare cluster_name instead when the volume is clustered, and keep the
+host comparison otherwise. cluster_name is always compared, so a volume
+that gains or loses a cluster still fails. Cinder returns cluster_name
+in the admin volume details only from microversion 3.61 (and then as
+null when not clustered), so the class now requests 3.61. It is skipped
+where [volume] max_microversion is below 3.61 or unset.
+
+This follows the approach of the abandoned upstream change
+https://review.opendev.org/c/openstack/tempest/+/708332 (which cannot
+be used as is) for https://bugs.launchpad.net/tempest/+bug/1863729, still
+open; tempest master still asserts the host. Drop this patch once
+requirements.txt moves to a tempest release that fixes that bug; the
+Containerfile's dry-run will fail the build and force exactly that.
+
+--- a/tempest/api/volume/admin/test_volume_retype.py
++++ b/tempest/api/volume/admin/test_volume_retype.py
+@@ -166,6 +166,10 @@
+ class VolumeRetypeWithoutMigrationTest(VolumeRetypeTest):
+     """Test volume retype without migration"""
+ 
++    # 3.61 adds cluster_name to the admin volume details.
++    volume_min_microversion = '3.61'
++    volume_max_microversion = 'latest'
++
+     @classmethod
+     def resource_setup(cls):
+         super(VolumeRetypeWithoutMigrationTest, cls).resource_setup()
+@@ -176,9 +180,15 @@
+ 
+         keys_with_no_change = ('id', 'size', 'description', 'name',
+                                'user_id', 'os-vol-tenant-attr:tenant_id',
+-                               'os-vol-host-attr:host')
++                               'cluster_name')
+         keys_with_change = ('volume_type',)
+ 
++        # In an Active/Active cluster any member may perform the retype and
++        # record itself as the volume's host, so only the cluster must stay
++        # the same there.
++        if not volume_source['cluster_name']:
++            keys_with_no_change += ('os-vol-host-attr:host',)
++
+         # Check the volume information after the retype
+         self.assertIsNone(volume_dest['os-vol-mig-status-attr:migstat'])
+         self.assertIsNone(volume_dest['migration_status'])
+@@ -198,7 +208,8 @@
+         1. Create volume1 with volume_type1
+         2. Retype volume1 to volume_type2 with migration_policy='never'
+         3. Check volume1's volume_type is changed to volume_type2, and
+-           'os-vol-host-attr:host' in the volume info is not changed.
++           its cluster_name is not changed; for a volume that is not in a
++           cluster, 'os-vol-host-attr:host' is not changed either.
+         """
+         src_vol = self.create_volume(volume_type=self.src_vol_type['name'])
+ 
