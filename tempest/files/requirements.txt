@@ -3,7 +3,7 @@ extras==1.0.0
 # https://docs.openstack.org/tempest/latest/plugins/plugin-registry.html#detected-plugins
 barbican-tempest-plugin==4.5.0
 cinder-tempest-plugin==1.22.0
-designate-tempest-plugin==0.29.0
+designate-tempest-plugin==0.30.0
 glance-tempest-plugin==0.16.0
 ironic-tempest-plugin==3.2.0
 keystone-tempest-plugin==0.21.0
