@@ -1,7 +1,7 @@
 # based on https://github.com/bastienwirtz/homer/blob/main/Dockerfile
 
 # build stage
-FROM node:24-alpine AS build-stage
+FROM node:26-alpine AS build-stage
 ARG VERSION=v26.4.2  # renovate: datasource=docker depName=b4bz/homer
 
 ENV PNPM_HOME="/pnpm"
