@@ -14,13 +14,17 @@ RUN groupmod -g 64045 ceph
 # Carried upstream fixes. cephadm discovers a host's addresses only through
 # `ip route ls`, so an address carrying a host prefix (/32 on a dummy device --
 # the routed reference design) is invisible to it: mon placement filters out
-# every host and `orch apply <svc> --networks` places nothing. Patched here
-# until the fix is in a release. Each patch is dry-run first, so a patch that
+# every host and `orch apply <svc> --networks` places nothing. On v20, the
+# mgr's OSD creation also logs a failed ceph-volume run and returns success, so
+# `ceph orch daemon add osd` exits 0 without creating the OSD. Patched here
+# until the fixes are in a release. Each patch is dry-run first, so a patch that
 # no longer applies fails the build instead of being silently skipped.
 #
 # patches/v<N>/*.patch are static `git diff` snapshots of a branch in the
 # ceph fork this carry tracks -- they are not generated at build time:
-# v20 from cephadm-discovery-carry (based on tag v20.2.4), v19 from
+# v20 from cephadm-discovery-carry (based on tag v20.2.4), except
+# 0003-mgr-cephadm-osd-create-errors.patch: v20.2.4 with the commit of
+# https://github.com/ceph/ceph/pull/71827 cherry-picked; v19 from
 # cephadm-discovery-carry-squid (v19.2.6), v18 from
 # cephadm-discovery-carry-reef (v18.2.8). Whenever a branch moves, its
 # series is stale until regenerated from its new HEAD, one
@@ -162,6 +166,11 @@ PY
   grep -q 'is_single_host_network' /usr/share/ceph/mgr/cephadm/serve.py
   grep -q 'is_single_host_network' /usr/share/ceph/mgr/cephadm/services/ingress.py
   python3 -c "import py_compile; py_compile.compile('/usr/share/ceph/mgr/cephadm/schedule.py', doraise=True)"
+fi
+# Only the v20 series carries the OSD creation fix.
+if [ -f "/patches-marker/$SERIES/0003-mgr-cephadm-osd-create-errors.patch" ]; then
+  grep -q 'raise failed\[0\]' /usr/share/ceph/mgr/cephadm/services/osd.py
+  python3 -c "import py_compile; py_compile.compile('/usr/share/ceph/mgr/cephadm/services/osd.py', doraise=True)"
 fi
 rm -rf /patches-marker
 SH
