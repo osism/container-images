@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -x
+# Fail on any failed command: a failed download or load must fail the step.
+set -xeo pipefail
 
 # Available environment variables
 #
@@ -30,6 +31,8 @@ if [[ $IMAGE == "sonic-vs" ]]; then
     fi
     docker load --input docker-sonic-vs.gz
     docker tag docker-sonic-vs:latest $REPOSITORY:$VERSION
+    # push.sh tags and pushes from the revision tag, as for the other images.
+    docker tag docker-sonic-vs:latest $REPOSITORY:$REVISION
     exit 0
 fi
 
