@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-set -x
+# Fail on any failed command, including inside pipes: a failed docker push
+# must fail the workflow step. Before this, the script's status was that of
+# the final docker rmi. No -u: the dnsmasq-osism and rsync workflows do not
+# pass DOCKER_USERNAME/DOCKER_PASSWORD, which the skopeo checks below expand.
+set -xeo pipefail
 
 # Available environment variables
 #
@@ -15,21 +19,30 @@ if [[ -n $DOCKER_REGISTRY ]]; then
     REPOSITORY="$DOCKER_REGISTRY/$REPOSITORY"
 fi
 
+# SBOM tooling, installed and checked before anything is pushed: a failed
+# install (e.g. a 504 from GitHub release downloads) then fails the step with
+# nothing published, and a rerun starts clean.
 pip3 install dtrack-auditor
 curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin
+/usr/local/bin/syft version > /dev/null
+command -v dtrackauditor > /dev/null
 
+# Called after sign_image. A failure fails the step. For a version tag that
+# a rerun skips as already existing, the SBOM then has to be uploaded by hand.
 generate_sbom() {
     local repository="$1"
     local version="$2"
 
     /usr/local/bin/syft scan "$repository:$version" -o cyclonedx-json@1.6 > sbom.json
     dtrackauditor \
-      -p $(basename $repository) \
+      -p "$(basename "$repository")" \
       -v "$version" \
       -f sbom.json \
       -a
 }
 
+# Called right after each push. A rerun skips version tags that already
+# exist, so a tag pushed but left unsigned by a failed run stays unsigned.
 sign_image() {
     local repository="$1"
     local version="$2"
@@ -42,45 +55,45 @@ docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
 if [[ $IMAGE != "netbox" && $IMAGE != "ceph-daemon" && $IMAGE != "pulp-minimal" ]]; then
     # push e.g. osism/cephclient:pacific
     docker push "$REPOSITORY:$VERSION"
-    generate_sbom $REPOSITORY $VERSION
     sign_image $REPOSITORY $VERSION
+    generate_sbom $REPOSITORY $VERSION
 fi
 
 if [[ $IMAGE == "cgit" ]]; then
-    version=$(docker run --rm "$REPOSITORY:$VERSION" /usr/libexec/cgit/cgi-bin/cgit --version | head -n1 | awk '{ print $2 }' | sed 's/v*//')
+    version=$(docker run --rm "$REPOSITORY:$VERSION" /usr/libexec/cgit/cgi-bin/cgit --version | awk 'NR == 1 { print $2 }' | sed 's/v*//')
     if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
         echo "The image ${REPOSITORY}:${version} already exists."
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
-        generate_sbom $REPOSITORY $version
         sign_image $REPOSITORY $version
+        generate_sbom $REPOSITORY $version
     fi
 fi
 
 # push e.g. osism/dnsmasq-osism:2.90
 if [[ $IMAGE == "dnsmasq-osism" ]]; then
-    version=$(docker run --rm "$REPOSITORY:$VERSION" --version | head -n 1 | awk '{ print $3 }')
+    version=$(docker run --rm "$REPOSITORY:$VERSION" --version | awk 'NR == 1 { print $3 }')
     if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
         echo "The image ${REPOSITORY}:${version} already exists."
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
-        generate_sbom $REPOSITORY $version
         sign_image $REPOSITORY $version
+        generate_sbom $REPOSITORY $version
     fi
 fi
 
 # push e.g. osism/rsync:3.2.7
 if [[ $IMAGE == "rsync" ]]; then
-    version=$(docker run --entrypoint /usr/bin/rsync --rm "$REPOSITORY:$VERSION" --version | head -n 1 | awk '{ print $3 }')
+    version=$(docker run --entrypoint /usr/bin/rsync --rm "$REPOSITORY:$VERSION" --version | awk 'NR == 1 { print $3 }')
     if skopeo inspect --creds "${DOCKER_USERNAME}:${DOCKER_PASSWORD}" "docker://${REPOSITORY}:${version}" > /dev/null; then
         echo "The image ${REPOSITORY}:${version} already exists."
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
-        generate_sbom $REPOSITORY $version
         sign_image $REPOSITORY $version
+        generate_sbom $REPOSITORY $version
     fi
 fi
 
@@ -102,15 +115,15 @@ if [[ $IMAGE == "ara-server" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
-        generate_sbom $REPOSITORY $version
         sign_image $REPOSITORY $version
+        generate_sbom $REPOSITORY $version
     fi
 
     # always push a latest osism/ara-server image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
-    generate_sbom $REPOSITORY latest
     sign_image $REPOSITORY latest
+    generate_sbom $REPOSITORY latest
 fi
 
 # push e.g. osism/openstackclient:5.5.0
@@ -121,14 +134,14 @@ if [[ $IMAGE == "openstackclient" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
-        generate_sbom $REPOSITORY $version
         sign_image $REPOSITORY $version
+        generate_sbom $REPOSITORY $version
     fi
 
     docker tag "$REPOSITORY:$VERSION" "$REPOSITORY:$VERSION"
     docker push "$REPOSITORY:$VERSION"
-    generate_sbom $REPOSITORY $VERSION
     sign_image $REPOSITORY $VERSION
+    generate_sbom $REPOSITORY $VERSION
 
     # Publish :latest for the rolling/newest build. The workflow marks that
     # matrix entry with PUBLISH_LATEST=true rather than hardcoding a series
@@ -139,8 +152,8 @@ if [[ $IMAGE == "openstackclient" ]]; then
     if [[ "${PUBLISH_LATEST:-false}" == "true" ]]; then
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
         docker push "$REPOSITORY:latest"
-        generate_sbom $REPOSITORY latest
         sign_image $REPOSITORY latest
+        generate_sbom $REPOSITORY latest
     fi
 fi
 
@@ -164,6 +177,8 @@ if [[ $IMAGE == "ceph-daemon" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
+        sign_image $REPOSITORY $version
+        generate_sbom $REPOSITORY $version
 
 	if [[ "$VERSION" == "v17" ]]; then
             docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:quincy"
@@ -175,17 +190,14 @@ if [[ $IMAGE == "ceph-daemon" ]]; then
             docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:squid"
             docker push "$REPOSITORY:squid"
 	fi
-
-        generate_sbom $REPOSITORY $version
-        sign_image $REPOSITORY $version
     fi
 
     # push e.g. osism/ceph-daemon:pacific
     version=$(docker inspect --format='{{range .Config.Env}}{{println .}}{{end}}' "$REPOSITORY:$REVISION" | grep -P "^CEPH_VERSION=" | sed 's/[^=]*=//')
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
     docker push "$REPOSITORY:$version"
-    generate_sbom $REPOSITORY $version
     sign_image $REPOSITORY $version
+    generate_sbom $REPOSITORY $version
 fi
 
 # push e.g. osism/cephclient:16.2.5
@@ -196,8 +208,8 @@ if [[ $IMAGE == "cephclient" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$version"
         docker push "$REPOSITORY:$version"
-        generate_sbom $REPOSITORY $version
         sign_image $REPOSITORY $version
+        generate_sbom $REPOSITORY $version
     fi
 fi
 
@@ -208,15 +220,15 @@ if [[ $IMAGE == "netbox" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
         docker push "$REPOSITORY:$VERSION"
-        generate_sbom $REPOSITORY $VERSION
         sign_image $REPOSITORY $VERSION
+        generate_sbom $REPOSITORY $VERSION
     fi
 
     # always push a latest osism/netbox image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
-    generate_sbom $REPOSITORY latest
     sign_image $REPOSITORY latest
+    generate_sbom $REPOSITORY latest
 fi
 
 # push e.g. osism/pulp:3.4.8
@@ -226,15 +238,15 @@ if [[ $IMAGE == "pulp" ]]; then
     else
         docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:$VERSION"
         docker push "$REPOSITORY:$VERSION"
-        generate_sbom $REPOSITORY $VERSION
         sign_image $REPOSITORY $VERSION
+        generate_sbom $REPOSITORY $VERSION
     fi
 
     # always push a latest osism/pulp image
     docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
     docker push "$REPOSITORY:latest"
-    generate_sbom $REPOSITORY latest
     sign_image $REPOSITORY latest
+    generate_sbom $REPOSITORY latest
 fi
 
 docker rmi "$REPOSITORY:$VERSION"
