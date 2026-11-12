@@ -8,14 +8,14 @@ name: Build sonic-vs container image
   push:
     paths:
       - .github/workflows/build-sonic-vs-container-image.yml
-      - scrips/build.sh
+      - scripts/build.sh
       - sonic-vs/**
     branches:
       - main
   pull_request:
     paths:
       - .github/workflows/build-sonic-vs-container-image.yml
-      - scrips/build.sh
+      - scripts/build.sh
       - sonic-vs/**
 
 jobs:
