@@ -249,4 +249,12 @@ if [[ $IMAGE == "pulp" ]]; then
     generate_sbom $REPOSITORY latest
 fi
 
+# push osism/sonic-vs:latest too, which the testbed's containerlab topology uses
+if [[ $IMAGE == "sonic-vs" ]]; then
+    docker tag "$REPOSITORY:$REVISION" "$REPOSITORY:latest"
+    docker push "$REPOSITORY:latest"
+    sign_image $REPOSITORY latest
+    generate_sbom $REPOSITORY latest
+fi
+
 docker rmi "$REPOSITORY:$VERSION"

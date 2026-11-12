@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         version:
-          - 202411
+          - 202511
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
