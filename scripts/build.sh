@@ -25,10 +25,17 @@ fi
 cd $IMAGE
 
 if [[ $IMAGE == "sonic-vs" ]]; then
-    # URL from https://sonic.software/
-    if [[ "$VERSION" == "202411" ]]; then
-        wget -q -O docker-sonic-vs.gz "https://artprodcus3.artifacts.visualstudio.com/Af91412a5-a906-4990-9d7c-f697b81fc04d/be1b070f-be15-4154-aade-b1d3bfb17054/_apis/artifact/cGlwZWxpbmVhcnRpZmFjdDovL21zc29uaWMvcHJvamVjdElkL2JlMWIwNzBmLWJlMTUtNDE1NC1hYWRlLWIxZDNiZmIxNzA1NC9idWlsZElkLzczNzkwNi9hcnRpZmFjdE5hbWUvc29uaWMtYnVpbGRpbWFnZS52cw2/content?format=file&subpath=/target/docker-sonic-vs.gz"
-    fi
+    # SONiC publishes the VS image only as an artifact of its Azure DevOps
+    # pipeline, and runs there are deleted after about 60 days unless kept,
+    # so a fixed artifact URL breaks (build 737906 did). Look up the newest
+    # successful build of the release branch $VERSION instead, the way
+    # https://sonic.software/ (github.com/bluecmd/sonic-builds) does.
+    api=https://dev.azure.com/mssonic/build/_apis/build
+    definition=$(curl -sSf "$api/definitions?name=Azure.sonic-buildimage.official.vs&api-version=6.0" | jq -er '.value[0].id')
+    build_id=$(curl -sSf "$api/builds?definitions=$definition&branchName=refs/heads/$VERSION&resultFilter=succeeded&\$top=1&api-version=6.0" | jq -er '.value[0].id')
+    echo "Using SONiC VS build $build_id: https://dev.azure.com/mssonic/build/_build/results?buildId=$build_id"
+    url=$(curl -sSf "$api/builds/$build_id/artifacts?artifactName=sonic-buildimage.vs&api-version=5.1" | jq -er '.resource.downloadUrl' | sed 's|format=zip|format=file\&subpath=/target/docker-sonic-vs.gz|')
+    wget -q -O docker-sonic-vs.gz "$url"
     docker load --input docker-sonic-vs.gz
     docker tag docker-sonic-vs:latest $REPOSITORY:$VERSION
     # push.sh tags and pushes from the revision tag, as for the other images.
