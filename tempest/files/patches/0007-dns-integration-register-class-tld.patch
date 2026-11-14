@@ -1,0 +1,136 @@
+Subject: [PATCH] dns integration: register a class TLD before creating zones
+
+Designate validates a zone name against the TLD list only while that list is
+non-empty, and the list is deployment global. An empty list disables the TLD
+restriction alone -- _is_valid_zone_name still enforces max_zone_name_len,
+the more-than-one-label rule and the blacklist unconditionally. Once a TLD
+exists the name must additionally carry a registered TLD as one of its own
+suffixes: central/service.py walks every trailing label sequence, from the
+whole name down to the last label, and raises InvalidZoneName('Invalid TLD')
+only when none of them matches.
+
+designate-tempest-plugin's BaseZonesTest.resource_setup registers a
+class-scoped TLD and generates its own zones beneath it, so it is correct for
+itself regardless of the switch. But the TLD stays live for the whole class,
+which flips the deployment into enforcing mode for everybody else running at
+the same time.
+
+neutron-tempest-plugin's scenario/test_dns_integration.py does neither. All
+four classes create zones: three inherit BaseDNSIntegrationTests.resource_setup,
+which calls rand_zone_name() and so lands under designate's default
+[dns] tld_suffix, and DNSIntegrationDomainPerProjectTests hardcodes a ".zone."
+suffix. None registers a TLD, so all four depend on what else is running:
+concurrent tests can register TLDs that do not match neutron's generated zone
+names, and then every create_zone in this module fails.
+
+Under OSISM's all-plugin tempest discovery designate's zone tests and neutron's
+DNS tests run concurrently against one deployment, and the classes collide:
+
+    setUpClass (neutron_tempest_plugin.scenario.test_dns_integration.
+                DNSIntegrationTests)
+    setUpClass (neutron_tempest_plugin.scenario.test_dns_integration.
+                DNSIntegrationExtraTests)
+
+    tempest.lib.exceptions.BadRequest: Bad request
+    Details: {'code': 400, 'type': 'invalid_zone_name',
+              'message': 'Invalid TLD'}
+
+Both died in resource_setup on create_zone. Reconstructing the TLD balance from
+the controllers' designate access logs (successful POST/DELETE /v2/tlds only)
+showed exactly one TLD live at each failure moment, inside windows of 2-4
+minutes separated by gaps at zero -- a race whose outcome depends on whether a
+zone class happens to be running.
+
+Fix it on the victim side, the same way designate-tempest-plugin fixed itself in
+ade263c ("Fix TLD issues for test concurrency", 2022-05-23): give each class a
+private TLD and generate its zones beneath it. _setup_class_tld() registers a
+unique TLD with the admin client and is called from both resource_setup paths --
+the base one, plus DNSIntegrationDomainPerProjectTests, which deliberately skips
+the base setup. That class keeps its "<user_id>.<project_id>" domain template;
+only the dead ".zone." suffix is replaced by the registered TLD.
+
+The TLD cleanup is registered before the zones that live under it. Class
+resource cleanups run in reverse order of registration, so the zones are deleted
+first and the TLD outlives its dependants.
+
+Registering a TLD costs nothing and needs no lock, unlike marking designate's
+zone classes @serial, which would block every other test for the lifetime of
+each class.
+
+Self-expiring: this patch is applied by the tempest image build with
+`patch --forward --dry-run` gating. Once neutron-tempest-plugin ships this
+upstream the patch will no longer apply, the build will fail, and this file must
+be deleted.
+
+--- a/neutron_tempest_plugin/scenario/test_dns_integration.py
++++ b/neutron_tempest_plugin/scenario/test_dns_integration.py
+@@ -66,6 +66,7 @@
+         super().setup_clients()
+         cls.zone_client = cls.os_tempest.dns_v2.ZonesClient()
+         cls.recordset_client = cls.os_tempest.dns_v2.RecordsetClient()
++        cls.admin_tld_client = cls.os_admin.dns_v2.TldClient()
+         cls.query_client.build_timeout = 60
+ 
+     @classmethod
+@@ -78,11 +79,42 @@
+             raise cls.skipException("Designate tempest plugin is missing")
+ 
+     @classmethod
++    def _setup_class_tld(cls):
++        """Register a private, class scoped TLD and export it as cls.tld_name.
++
++        Designate checks a zone name against the TLD list only while that
++        list is non-empty, and the list is deployment global.  An empty list
++        disables the TLD restriction alone -- length, label count and the
++        blacklist are still enforced.  While the list is non-empty the name
++        must additionally carry one of its own suffixes as a registered TLD.
++
++        Concurrent tests can register TLDs that do not match the zone names
++        generated here -- designate-tempest-plugin's zone classes each
++        register a class scoped TLD -- and then every zone this module
++        creates comes back as a 400 "Invalid TLD".  Generating our zones
++        beneath a TLD we register ourselves makes the suffix match by
++        construction, independently of what else runs against the same
++        deployment: the fix designate-tempest-plugin made for itself in
++        ade263c ("Fix TLD issues for test concurrency").
++        """
++        tld_name = dns_data_utils.rand_zone_name(name="dnsintegration")
++        cls.tld_name = ".{}".format(tld_name)
++        cls.class_tld = cls.admin_tld_client.create_tld(
++            tld_name=tld_name[:-1])
++        # Registered before any zone underneath it: class resource cleanups
++        # run in reverse order of registration, so the TLD is removed only
++        # after the zones that depend on it.
++        cls.addClassResourceCleanup(
++            cls.admin_tld_client.delete_tld, cls.class_tld[1]['id'],
++            ignore_errors=lib_exc.NotFound)
++
++    @classmethod
+     @utils.requires_ext(extension="dns-integration", service="network")
+     def resource_setup(cls):
+         super().resource_setup()
++        cls._setup_class_tld()
+         cls.zone_name = dns_data_utils.rand_zone_name(
+-            name="basednsintegrationtests")
++            name="basednsintegrationtests", suffix=cls.tld_name)
+         cls.zone = cls.zone_client.create_zone(
+             name=cls.zone_name, wait_until='ACTIVE')[1]
+         cls.addClassResourceCleanup(
+@@ -311,11 +343,13 @@
+     @classmethod
+     def resource_setup(cls):
+         super(BaseDNSIntegrationTests, cls).resource_setup()
++        cls._setup_class_tld()
+         cls.name = data_utils.rand_name('test-domain')
+-        cls.zone_name = "%s.%s.%s.zone." % (cls.client.user_id,
+-                                        cls.client.project_id,
+-                                        cls.name)
+-        dns_domain_template = "<user_id>.<project_id>.%s.zone." % cls.name
++        cls.zone_name = "%s.%s.%s%s" % (
++            cls.client.user_id, cls.client.project_id, cls.name,
++            cls.tld_name)
++        dns_domain_template = "<user_id>.<project_id>.%s%s" % (
++            cls.name, cls.tld_name)
+         cls.zone = cls.zone_client.create_zone(
+             name=cls.zone_name, wait_until='ACTIVE')[1]
+         cls.addClassResourceCleanup(cls.zone_client.delete_zone,
