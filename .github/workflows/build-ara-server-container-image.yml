@@ -45,6 +45,15 @@ jobs:
           IMAGE: ara-server
           REPOSITORY: osism/ara-server
 
+      # Before the push: an image that does not start is not published,
+      # not even as latest. The tag is the one scripts/build.sh sets.
+      - name: Smoke test container image
+        run: |
+          ara-server/smoke-test.sh "${DOCKER_REGISTRY:-quay.io}/${REPOSITORY}:$(git rev-parse HEAD)"
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+          REPOSITORY: osism/ara-server
+
       - name: Push container image
         run: |
           scripts/push.sh
