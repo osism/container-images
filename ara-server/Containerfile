@@ -26,6 +26,13 @@ ADD --chmod=0755 https://github.com/ufoscout/docker-compose-wait/releases/downlo
 COPY --from=builder /wheels /wheels
 COPY files/requirements.txt /requirements.txt
 COPY files/run.sh /run.sh
+COPY files/osism_ara /opt/osism/osism_ara
+
+# OSISM settings module: ARA's settings with a cheap PBKDF2 hasher (see
+# files/osism_ara/settings.py). ARA's wsgi.py and ara-manage only setdefault
+# DJANGO_SETTINGS_MODULE, so this takes effect for gunicorn and run.sh alike.
+ENV PYTHONPATH=/opt/osism \
+    DJANGO_SETTINGS_MODULE=osism_ara.settings
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
