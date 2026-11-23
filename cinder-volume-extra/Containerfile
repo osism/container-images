@@ -19,19 +19,17 @@ RUN set -e && \
     echo "Installing Huawei drivers from branch ${HUAWEI_BRANCH} to ${HUAWEI_DIR}" && \
     # Remove old driver files
     rm -rf "${HUAWEI_DIR}"/* && \
-    # Get list of Python files from GitHub API and download them
-    API_URL="https://api.github.com/repos/Huawei/OpenStack_Driver/contents/Cinder/${HUAWEI_BRANCH}" && \
-    BASE_URL="https://raw.githubusercontent.com/Huawei/OpenStack_Driver/master/Cinder/${HUAWEI_BRANCH}" && \
-    # On failure, repeat the request without the kolla curlrc (-q) to log
-    # the response headers and body, which --fail discards
-    { curl -fsSL "${API_URL}" -o /tmp/api_response.json || \
-        { curl -q -sS -i "${API_URL}"; exit 1; }; } && \
-    FILES=$(python3 -c "import json; print(' '.join(f['name'] for f in json.load(open('/tmp/api_response.json')) if f['name'].endswith('.py')))") && \
-    rm -f /tmp/api_response.json && \
-    echo "Found files: ${FILES}" && \
-    for file in ${FILES}; do \
-        curl -fsSL "${BASE_URL}/${file}" -o "${HUAWEI_DIR}/${file}"; \
-    done
+    # Fetch the driver tree as one tarball from codeload. Unlike the
+    # contents API, codeload is not subject to the unauthenticated limit
+    # of 60 requests per hour, which shared runner IPs often exhaust.
+    curl -fsSL "https://codeload.github.com/Huawei/OpenStack_Driver/tar.gz/refs/heads/master" \
+        -o /tmp/huawei-driver.tar.gz && \
+    tar -xzf /tmp/huawei-driver.tar.gz -C "${HUAWEI_DIR}" \
+        --no-same-owner --no-same-permissions \
+        --strip-components=3 --wildcards \
+        "OpenStack_Driver-master/Cinder/${HUAWEI_BRANCH}/*.py" && \
+    rm -f /tmp/huawei-driver.tar.gz && \
+    echo "Installed files: $(ls "${HUAWEI_DIR}" | tr '\n' ' ')"
 
 # LINBIT LINSTOR driver
 RUN set -e && \
